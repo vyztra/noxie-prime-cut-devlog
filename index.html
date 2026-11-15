@@ -1,0 +1,916 @@
+<!doctype html>
+<html lang="en" class="nojs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>NOXIE: PRIME CUT Dev Log</title>
+<meta name="description" content="How one creative lead and a team of AI agents built NOXIE: PRIME CUT for the 2026 Epic AI MegaJam in one jam weekend: the decisions, the failures, the checks and the evidence.">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to the dev log</a>
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top">NOXIE<span>/</span>PRIME CUT <span style="color:var(--muted-dk);font-weight:600">dev log</span></a>
+    <nav aria-label="Quick links">
+      <a class="opt" data-sec="s12" href="#s12">Testing</a>
+      <a class="opt" data-sec="s13" href="#s13">Failures</a>
+      <a class="opt" data-sec="s18" href="#s18">Numbers</a>
+      <button id="menubtn" aria-expanded="false" aria-controls="menu">Contents</button>
+    </nav>
+  </div>
+  <div class="cutline" aria-hidden="true"></div>
+</header>
+<div class="menu" id="menu" aria-label="All sections">
+  <div class="wrap">
+    <ol>
+      <li><a href="#s1"><b>01</b>The idea, and how it became NOXIE</a></li>
+      <li><a href="#s2"><b>02</b>The creative lead's decisions, in his words</a></li>
+      <li><a href="#s3"><b>03</b>The jam weekend, in order</a></li>
+      <li><a href="#s4"><b>04</b>The character: Bodge to Noxie V2</a></li>
+      <li><a href="#s5"><b>05</b>The Gulper and the Cut</a></li>
+      <li><a href="#s6"><b>06</b>Combat, places and the boss</a></li>
+      <li><a href="#s7"><b>07</b>The AI tools and workflows</a></li>
+      <li><a href="#s8"><b>08</b>Human and AI: who did what</a></li>
+      <li><a href="#s9"><b>09</b>Engine, architecture, one laptop</a></li>
+      <li><a href="#s10"><b>10</b>Before and after</a></li>
+      <li><a href="#s11"><b>11</b>Failed experiments, rejected ideas</a></li>
+      <li><a href="#s12"><b>12</b>How it was tested</a></li>
+      <li><a href="#s13"><b>13</b>Stalls, regressions, recovery</a></li>
+      <li><a href="#s14"><b>14</b>What the creative lead saw when he played</a></li>
+      <li><a href="#s15"><b>15</b>The trailer and the marketing</a></li>
+      <li><a href="#s16"><b>16</b>Release candidates and the fallback</a></li>
+      <li><a href="#s17"><b>17</b>Where everything came from</a></li>
+      <li><a href="#s18"><b>18</b>The numbers</a></li>
+      <li><a href="#s19"><b>19</b>What shipped, limits, lessons, next</a></li>
+      <li><a href="#gallery"><b>+</b>Gallery of development artifacts</a></li>
+    </ol>
+  </div>
+</div>
+
+<main id="main">
+<section class="hero" id="top">
+  <div class="wrap in">
+   <div class="hgrid">
+    <div class="htext">
+    <div class="mark"><img src="assets/wordmark.svg" alt="NOXIE: PRIME CUT"><i aria-hidden="true"></i></div>
+    <h1>One jam weekend. One person. A team of AI agents. <em>This is the whole record.</em></h1>
+    <figure class="hfig"><img src="assets/img/hero-noxie-render.webp" width="1000" height="882" alt="Noxie, a small blue creature with a crystal mohawk, big black eyes, a magenta-lit toothy grin and torn bat wings, holding the Gulper, a brass trumpet-shaped weapon with a glass belly."><figcaption><span class="tag render">Render</span>Noxie V2 and the Gulper, rendered outside the game in Blender. Not a gameplay frame.</figcaption></figure>
+    <p class="sub">NOXIE: PRIME CUT is a third-person action-comedy for the 2026 Epic AI MegaJam (theme: Director's Cut), made in Unreal Engine 5.8 on one laptop. This dev log is written from the project's own running log, test results, independent reviews and the creative lead's own words. It does not say the game is fun. It says what was built, how each thing was checked, and the three times the checks said "pass" and a person looking or playing said otherwise.</p>
+    <p class="by">Developed by Vyztra<span data-slot="creative-lead-name"></span></p>
+    </div>
+   </div>
+    <div class="stats" role="list" aria-label="Headline numbers">
+      <div role="listitem"><b>4</b><span>jam days; this game's first commit was Friday 12:12 (~57 h to the deadline)</span></div>
+      <div role="listitem"><b>205</b><span>commits on the release branch (counted 15:35)</span></div>
+      <div role="listitem"><b>9</b><span>candidate builds (1 to 7, plus 2b and 5b)</span></div>
+      <div role="listitem"><b>10</b><span>independent review documents</span></div>
+      <div role="listitem"><b>~2,760</b><span>run folders, nested copies included</span></div>
+      <div role="listitem"><b>$0</b><span>cash spent, as recorded</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec violet" id="start" aria-labelledby="start-h">
+  <div class="wrap">
+    <span class="eyebrow">Read this first</span>
+    <h2 id="start-h" style="max-width:20ch">What this is, and why it is worth ten minutes</h2>
+    <div class="cols prose" style="margin-top:34px">
+      <div>
+        <p class="lede">The Glass Box prize is for the best dev log of how a submission was made. Most dev logs are a list of things that went well. This one keeps the failed builds, the wrong guesses, the stalled agents and the measurements that arrived too late.</p>
+        <p>One human, the creative lead, directed the whole project. Every line of code and every 3D model was produced by AI agents working for him; the score and most effects are synthesised by Python code that AI agents wrote, and 31 of the 59 newest effects layer licensed human-made recordings (<a href="#s17">section 17</a>). He chose, rejected, approved and played the builds sent to him. That split is the subject of this page.</p>
+        <p><strong>What the creative lead did that no agent did, from the records.</strong> He wrote the brief and the canon. He named the character and set its design direction, choosing design G from eight concepts. He played the builds sent to him (the Friday build, Candidate 5b on Saturday, Candidate 6 on Sunday) and rejected or stopped on the first two. He rejected the first trailer and the first marketing images, which had passed their checks. He set the rule that the verified old build stays untouched as the fallback. He made the calls on what not to build: no Windows build, no new levels, Ninja Chicken deferred.</p>
+        <p>If you only have three minutes, read <a href="#s12">how it was tested</a>, <a href="#s13">the failures</a> and <a href="#s15">the trailer that was choppy</a>. If you are technical, add <a href="#s9">the architecture</a>. If you are not, the <a href="#s10">before and after pictures</a> and <a href="#s14">the creative lead's playtest notes</a> tell the story without any code.</p>
+      </div>
+      <div class="card">
+        <h3>How to read the labels</h3>
+        <p><span class="chip v">Verified</span> measured or pictured on a build, with the record named.<br>
+        <span class="chip o">Owner-observed</span> the creative lead saw it while playing.<br>
+        <span class="chip u">Untested</span> nobody has checked it.</p>
+        <p>Every picture is labelled:
+        <span class="tag">Gameplay frame</span> a frame the game itself drew,
+        <span class="tag render">Render</span> a 3D render outside the game,
+        <span class="tag concept">Concept</span> an AI-generated picture used as a design target,
+        <span class="tag tool">Tool output</span> a contact sheet or chart made by a test tool.</p>
+        <p class="muted" style="margin:0">Written and updated on Sunday 15 November 2026. Candidate 7b shipped. At the last update, nobody had played Candidate 7b by hand; the creative lead had watched trailer 5b and rejected it (<a href="#s15">section 15</a>), and a character-first teaser cut to his own sequence is the video on the game page. <strong>The entry is submitted:</strong> he made the submission by hand on Sunday 15 November at about 5:38 PM EST, and the jam's public entry page reads "3 hours, 21 minutes before the deadline". The game page is public, macOS, with a 445 MB download shown.</p>
+      </div>
+    </div>
+    <div class="card status reveal" data-slot="final-result"><span class="eyebrow">Final build</span><p style="margin:0"><strong>Sunday 15 November, about 15:35.</strong> <span data-slot="final-build">The final build is Candidate 7b: Candidate 7 plus one commit, in which the dark curtain behind each door became a one-sided plane so the view no longer goes black when the camera is behind it.</span> An independent reviewer of a different model found no blocker in Candidate 7 (17 packaged runs and a Candidate 6 control) and, at 15:32, kept Candidate 7b. Candidates 6 and 7 stayed byte-identical all day (<a href="#s16">section 16</a>).</p></div>
+  </div>
+</section>
+
+<!-- 01 -->
+<section class="sec paper" id="s1" aria-labelledby="s1h">
+  <div class="wrap">
+    <div class="sh"><span class="num">01</span><h2 id="s1h">The idea, and how it became NOXIE</h2><span class="evi">Evidence: strong. The brief is saved word for word.</span></div>
+    <div class="cols prose">
+      <div>
+        <p>At noon on Friday 13 November the creative lead wrote a brief and handed it to a project-manager agent. An earlier jam concept had been started on Thursday and was paused by him that morning; only its build, test and capture tooling was reused.</p>
+        <p>The brief asked for a 15 to 25 minute third-person action-comedy. The player is "an original cute-but-biologically-questionable creature trying to accomplish an absurdly mundane domestic task while being dragged through escalating catastrophe." The theme was not to be decoration. His words: "DIRECTOR'S CUT must be mechanically experienced by the player." Death was to be "another take": a malfunctioning Director that sees the world as a production, and treats a death as a failed take.</p>
+        <p>The brief also floated a weapon idea called Ninja Chicken Bomb. That idea is part of the story in <a href="#s19">section 19</a>: it was never built.</p>
+      </div>
+      <div>
+        <p>The first version, working title <strong>BAD TAKE</strong>, was a small domestic errand. A creature called Bodge is sent to fetch one glowgrub (the creature that works as a light bulb in his porch lamp) from a fun-hall run by a watching eye. His weapon, the Gulper, swallows props and small enemies and fires them back out.</p>
+        <p>On Saturday 14 November the creative lead played the build and then sent a locked canon of his own. It renamed the protagonist <strong>Noxie</strong> (Bodge became the codename), named the watcher <strong>Dio Prime</strong>, and gave the project its title and its signature: <strong>the Prime Cut</strong>, the version of the world the player restores. He also wrote the line that changed the design: the game "cannot rely on death causing alternate takes as its sole originality claim." That sentence is why the Cut became something the player does, not only something that happens to him (<a href="#s5">section 5</a>).</p>
+        <p class="muted">File and app names inside the project still say BadTake. Player-facing text says NOXIE: PRIME CUT.</p>
+        <div style="margin-top:22px"><figure><img src="assets/img/gal-street.webp" width="1280" height="720" alt="The street at the start of the game, with Dot's subtitle about the glowgrub and the objective marker for the Gulper." loading="lazy"><figcaption><span class="tag ">Gameplay frame</span>The errand begins: the street in Candidate 6. The subtitle is the one-line brief: one glowgrub, not the cheap kind.</figcaption></figure></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section class="sec night" id="s2" aria-labelledby="s2h">
+  <div class="wrap">
+    <div class="sh"><span class="num">02</span><h2 id="s2h">The creative lead's decisions, in his own words</h2><span class="evi">Evidence: strong. Each quote is saved verbatim with its time.</span></div>
+    <p class="lede" style="margin-bottom:34px">The agents proposed. He decided. These are the moments that changed the project, quoted short and unedited.</p>
+    <div class="cols">
+      <div>
+        <div class="q reveal"><p>"Implemented" does not mean "works." ... If evidence contradicts an agent's claim, evidence wins.</p><cite>The brief, Fri 13 Nov 12:06</cite></div>
+        <div class="q reveal"><p>"Current human playtest verdict: FAIL on feel/quality."</p><cite>First playtest, Fri 13 Nov 13:40</cite></div>
+        <div class="q reveal"><p>"i put photos in downloads of some various ref photos for a base, but want to make the creature my own from the references."</p><cite>On the first character concepts, Fri 13 Nov 13:55</cite></div>
+        <div class="q reveal"><p>"g: but blueish i think, make creepy teeth and big eyes and spikes formed like a mohawk down the center line of head."</p><cite>Choosing the character, Fri 13 Nov 14:01</cite></div>
+        <div class="q reveal"><p>"I approve the sound reel in chat"</p><cite>After hearing 17 cues on his phone, Fri 13 Nov 16:50</cite></div>
+        <div class="q reveal"><p>"A WINDOWS BUILD IS NOT REQUIRED FOR THIS SUBMISSION."</p><cite>Closing a rules question, Sat 14 Nov 10:07</cite></div>
+      </div>
+      <div>
+        <div class="q reveal"><p>"i can't keep testing the game when i can't get passed the breaker room."</p><cite>Playing Candidate 5b, Sat 14 Nov</cite></div>
+        <div class="q reveal"><p>"YES, conditionally approve the redesigned Noxie for integration ... Do not hold up B1, independent QA, or the submission schedule for cosmetic refinements."</p><cite>Sat 14 Nov 19:56</cite></div>
+        <div class="q reveal"><p>"I like the foundation."</p><cite>After playing Candidate 6, Sun 15 Nov 10:45</cite></div>
+        <div class="q reveal"><p>"Do not downgrade these observations because automated tests passed."</p><cite>Sun 15 Nov 10:45</cite></div>
+        <div class="q reveal"><p>"Do not merely add more cubes, crates, primitive shapes, or decorative clutter."</p><cite>Sun 15 Nov 10:45</cite></div>
+        <div class="q reveal"><p>"... the marketing is lackluster, and the trailer is choppy. The visual impression is closer to a PS1-era game than the quality we are trying to achieve."</p><cite>Sun 15 Nov 10:52</cite></div>
+      </div>
+    </div>
+    <div class="prose" style="margin-top:14px"><p><strong>What the creative lead did that no agent did, from the records.</strong> He wrote the brief and the canon. He named the character and set its design direction, choosing design G from eight concepts. He played the builds sent to him (the Friday build, Candidate 5b on Saturday, Candidate 6 on Sunday) and rejected or stopped on the first two. He rejected the first trailer and the first marketing images, which had passed their checks. He set the rule that the verified old build stays untouched as the fallback. He made the calls on what not to build: no Windows build, no new levels, Ninja Chicken deferred.</p></div>
+    <div class="card" style="margin-top:14px">
+      <h3>The kinds of call only he made</h3>
+      <p style="margin:0;max-width:78ch">Which character design to build (he picked one from eight and rewrote its colour and teeth). Whether a new look was good enough to approve, approve with conditions, or refuse. When to freeze scope and when to lift the freeze. Whether a rules question was settled. What the game, the hero and the watcher are called. And, three times, he found problems in a build that had passed every scripted test: he failed the first, stopped testing the second, and sent the third back for a quality pass (<a href="#s14">section 14</a>). No agent was allowed to write that something was fun, good or approved; the project's status words were Verified, Owner-observed, Untested and Deferred.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section class="sec violet" id="s3" aria-labelledby="s3h">
+  <div class="wrap">
+    <div class="sh"><span class="num">03</span><h2 id="s3h">The jam weekend, in order</h2><span class="evi">Evidence: strong. Times come from the running log and the commit history.</span></div>
+    <p class="lede">The jam window ran from 12:00 AM on Thursday 12 November to 8:59 PM on Sunday 15 November (Eastern time). This project's repository was created at 12:12 PM on Friday 13 November, so this game had about two and a half days of commits at the deadline. Filter the timeline by day or by kind of event.</p>
+    <div class="figrow" style="margin:6px 0 28px"><figure><img src="assets/img/concept-G.webp" width="900" height="900" alt="The approved concept picture of the first character." loading="lazy"><figcaption><span class="tag concept">Concept</span>Friday: the character picked at 14:01.</figcaption></figure><figure><img src="assets/img/c5-horror-fight.webp" width="800" height="450" alt="The breaker room in Candidate 5: a dark violet hall with dolls, a power counter reading 0 of 3 and a pink light at the back." loading="lazy"><figcaption><span class="tag ">Gameplay frame</span>Saturday: the breaker room as the creative lead met it in Candidate 5.</figcaption></figure><figure><img src="assets/img/gal-street.webp" width="1280" height="720" alt="The street in Candidate 6." loading="lazy"><figcaption><span class="tag ">Gameplay frame</span>Sunday: the street in Candidate 6, the protected fallback.</figcaption></figure></div>
+    <div class="filters" role="group" aria-label="Filter the timeline">
+      <div class="grp" role="group" aria-label="Day">
+        <button data-g="day" data-v="all" aria-pressed="true">All days</button>
+        <button data-g="day" data-v="thu" aria-pressed="false">Thu 12</button>
+        <button data-g="day" data-v="fri" aria-pressed="false">Fri 13</button>
+        <button data-g="day" data-v="sat" aria-pressed="false">Sat 14</button>
+        <button data-g="day" data-v="sun" aria-pressed="false">Sun 15</button>
+      </div>
+      <div class="grp" role="group" aria-label="Kind">
+        <button data-g="type" data-v="all" aria-pressed="true">Everything</button>
+        <button data-g="type" data-v="owner" aria-pressed="false">Creative lead's calls</button>
+        <button data-g="type" data-v="build" aria-pressed="false">Builds</button>
+        <button data-g="type" data-v="qa" aria-pressed="false">Review and QA</button>
+        <button data-g="type" data-v="fail" aria-pressed="false">Failures</button>
+      </div>
+    </div>
+    <div class="legend" aria-hidden="true"><span><i style="border-color:var(--mag)"></i>creative lead</span><span><i></i>build</span><span><i style="border-color:var(--ok)"></i>review</span><span><i style="border-color:var(--bad)"></i>failure</span></div>
+    <p class="mono muted" id="tlcount" aria-live="polite" style="margin:18px 0 0"></p>
+    <ol class="tl" id="tl">
+      
+      
+
+      <li class="day" data-day="thu"><span>Thu</span>Thursday 12 November</li>
+      <li data-day="thu" data-type="build"><time>Thursday</time><h4>The jam window opens, on a different concept</h4><p>The jam window opened at midnight, and the creative lead worked on a different game idea that day. He paused it on Friday morning, before this game began; only its build, test and capture tooling carried over.</p></li>
+
+      <li class="day" data-day="fri"><span>Fri</span>Friday 13 November</li>
+      <li data-day="fri" data-type="owner"><time>12:06</time><h4>The brief</h4><p>The creative lead writes the brief for a new Unreal game and hands it to a project-manager agent. Operating rule: nothing is "done" until it is implemented, played, evidenced, independently checked and judged.</p></li>
+      <li data-day="fri" data-type="build"><time>12:12 to 12:17</time><h4>Project created</h4><p>The repository is created. The first writes are refused because the session had not isolated its edits in a working copy; the guard is kept on, not switched off. Guessed clock times in the first log are caught against the system clock by a documentation agent and corrected.</p></li>
+      <li data-day="fri" data-type="build"><time>13:19</time><h4>First packaged build</h4><p>67 minutes after creation there is a packaged Mac build (862 MB) with movement, the Gulper and one enemy. Scripted tests inside the package pass: boot 3 of 3, movement 48 of 48, combat and takes 56 of 56, art 24 of 24.</p></li>
+      <li data-day="fri" data-type="owner"><time>13:38</time><h4>A ruling on a refused command</h4><p>The creative lead rules that one narrow commit command is acceptable in this working copy only, after a check. An agent had already worked around the refusal twice; the lead agent reported it instead of repeating it.</p></li>
+      <li data-day="fri" data-type="fail"><time>13:40</time><h4>First human playtest: fail</h4><p>Movement sluggish, mouse far too fast, the character ugly, the captured enemy unreadable, sound cheap. Every scripted test had passed. The movement and first-fight stages are marked failed until he plays a better build.</p></li>
+      <li data-day="fri" data-type="owner"><time>13:55 to 14:10</time><h4>The character is redesigned</h4><p>Round one of four concepts: he picks none and supplies four reference photos. Round two: he picks design G, "but blueish". The picture is edited and he writes: "i love the new bodge picture you opened up".</p></li>
+      <li data-day="fri" data-type="qa"><time>14:08</time><h4>Independent feel audit</h4><p>A separate reviewer measures the frozen build: mouse at 1.375 degrees per count against a normal 0.05 to 0.10, 13 to 28 fps for the first 40 seconds, 29 sound-loading stalls.</p></li>
+      <li data-day="fri" data-type="build"><time>14:45 to 17:23</time><h4>Recovery passes</h4><p>Mouse fixed to 0.100 degrees per count, sounds loaded at start, global illumination switched off, the capture bug fixed, a new sound set built from recordings. Candidate 2b, a Shipping build, is named the one to play at 17:26.</p></li>
+      <li data-day="fri" data-type="owner"><time>19:04</time><h4>"Build the whole chapter tonight"</h4><p>A fresh lead agent starts an overnight run: five engineering passes, one engineer at a time, each ending in a packaged build so a playable fallback always exists.</p></li>
+
+      <li class="day" data-day="sat"><span>Sat</span>Saturday 14 November</li>
+      <li data-day="sat" data-type="build"><time>02:14 to 04:16</time><h4>Boss, ending and the whole chapter</h4><p>Pass 4 adds the three-phase boss; pass 5 adds the ending. The whole chapter plays from the cold open to the end card and back, 435 of 435 checks, three runs in a row on the final code.</p></li>
+      <li data-day="sat" data-type="qa"><time>06:14</time><h4>Overnight QA finds two stuck-dead bugs</h4><p>An independent QA agent finds two P0 problems (a dead player never revived after certain scene cuts) and fixes them. Candidate 4, 743 MB, is the overnight result.</p></li>
+      <li data-day="sat" data-type="owner"><time>10:07</time><h4>Windows decided; the look pass ordered</h4><p>Windows build declared not required. Order for the day: keep Candidate 4 as the fallback, add no content, make the same chapter look, read and sound much better.</p></li>
+      <li data-day="sat" data-type="build"><time>12:40</time><h4>Candidate 5b built</h4><p>The look pass lands: real materials, lit cabinets, music, readable guards.</p></li>
+      <li data-day="sat" data-type="fail"><time>~14:27</time><h4>He plays 5b and stops</h4><p>"significant usability, combat, onboarding, and progression problems." The breaker room was not understandable or reliably completable, so he could not test anything past it.</p></li>
+      <li data-day="sat" data-type="owner"><time>15:01</time><h4>His canon arrives</h4><p>His own playtest words and locked canon for Noxie, Dio Prime, the Cut and the Gulper reach the project. The source search is closed; the breaker room is redesigned as the player-controlled Cut.</p></li>
+      <li data-day="sat" data-type="owner"><time>18:00 to 18:48</time><h4>Final directive and a list of observations</h4><p>Production is restructured: an independent adversarial QA workstream by a different model is mandatory and may reject passing work. His list from watching the test runs includes "No visible player-controlled Cut mechanic."</p></li>
+      <li data-day="sat" data-type="owner"><time>19:56 and 20:42</time><h4>Noxie V2 approved</h4><p>A conditional yes on renders, then a yes to integrate once the torn left wing was made visibly asymmetric.</p></li>
+      <li data-day="sat" data-type="build"><time>21:39</time><h4>Overnight workers launched</h4><p>Combat, Cut, audio and art lines run in separate working copies while he sleeps.</p></li>
+
+      <li class="day" data-day="sun"><span>Sun</span>Sunday 15 November</li>
+      <li data-day="sun" data-type="build"><time>01:23</time><h4>Feature freeze</h4><p>Five lines merged. Final gates pass on the fully merged build (04:52).</p></li>
+      <li data-day="sun" data-type="fail"><time>04:53 to 07:28</time><h4>The lead loses two and a half hours</h4><p>The lead agent ended its turn to wait for a worker with no timer. The worker's session did nothing for over three hours. The 7:00 milestone and the overnight regression were lost (<a href="#s13">section 13</a>).</p></li>
+      <li data-day="sun" data-type="build"><time>07:31</time><h4>Candidate 6 packaged</h4><p>Shipping, 788 MB. The independent regression of the package finishes at 08:19: release-ready with limits, no blocker, 19 packaged runs.</p></li>
+      <li data-day="sun" data-type="build"><time>08:36 to 09:26</time><h4>Release zip validated; trailer fourth cut</h4><p>A scripted player runs from the unpacked zip copy. A third trailer cut with a silent centre is caught and the cause found; the fourth cut is called final by the lead agent.</p></li>
+      <li data-day="sun" data-type="fail"><time>10:45 to 10:52</time><h4>He plays Candidate 6 and rejects the trailer</h4><p>"I like the foundation," plus nine findings. Seven minutes later: the trailer is "choppy". Measured at once: 41 percent of its frames are repeats.</p></li>
+      <li data-day="sun" data-type="owner"><time>10:59</time><h4>Quality pass planned, nothing yet changed</h4><p>A ranked seven-item plan with evidence for each. Candidate 6 and its zip are protected as the fallback.</p></li>
+      <li data-day="sun" data-type="build"><time>11:16</time><h4>Ten bounded lines launched</h4><p>Five engineering lines (combat, doors, boss, the Cut, the look) in isolated copies, plus the trailer, the hero renders, marketing, submission and this dev log. Hard stop for game changes: 13:00.</p></li>
+      <li data-day="sun" data-type="fail"><time>11:20 to 12:05</time><h4>A machine fault spoils the test results</h4><p>Eight crashed test runs each left a helper process holding a full core, and one boss test had a 16.5 second frame. Results from that window were thrown out (<a href="#s13">section 13</a>).</p></li>
+      <li data-day="sun" data-type="build"><time>12:41 to 13:21</time><h4>Merge and editor gates</h4><p>Five lines merged with two small conflicts, both kept on both sides. Every editor gate passed: the full-chapter run (a scripted player, cold open to end card) 509 of 509 three times, and the boss-fight test 123 of 123 three times with the dressed crane on.</p></li>
+      <li data-day="sun" data-type="build"><time>13:26</time><h4>Candidate 7 packaged</h4><p>Shipping, 788 MB. Candidate 6's files re-hashed: identical.</p></li>
+      <li data-day="sun" data-type="qa"><time>14:30</time><h4>Independent verdict: keep Candidate 7</h4><p>17 packaged runs and a Candidate 6 control. The reviewer also found two defects the builders' passing tests had missed (<a href="#s13">section 13</a>).</p></li>
+      <li data-day="sun" data-type="owner"><time>14:31</time><h4>Decision: Candidate 7 replaces Candidate 6</h4><p>A scripted player runs from the unpacked zip copy; Candidate 6 stays byte-identical.</p></li>
+      <li data-day="sun" data-type="build"><time>15:01</time><h4>Candidate 7b packaged</h4><p>Candidate 7 plus one commit: the door curtain becomes a one-sided plane. Packaged chapter 509 of 509; the reviewer's black-screen case: 0 black of 103 views (Candidate 7: 19 of 76).</p></li>
+      <li data-day="sun" data-type="build"><time>15:12</time><h4>New trailer cut</h4><p>34.4 seconds, captured at half speed from Candidate 7's code. About 4 percent near-duplicate gameplay frames, against 41 percent in the old cut.</p></li>
+      <li data-day="sun" data-type="qa"><time>15:32</time><h4>Independent delta verdict: keep Candidate 7b</h4><p>Zero black views at all three doorways; the diff is exactly that one commit.</p></li>
+      <li data-day="sun" data-type="fail"><time>16:49</time><h4>The new trailer is rejected</h4><p>The creative lead watched trailer 5b and did not approve it, then wrote the sequence for a character-first teaser himself (<a href="#s15">section 15</a>).</p></li>
+      <li data-day="sun" data-type="owner"><time>17:03</time><h4>Platform: macOS only</h4><p>He decided to submit the macOS build, with no Windows package, knowing the risk (<a href="#s19">section 19</a>).</p></li>
+      <li data-day="sun" data-type="owner"><time>17:38</time><h4>The entry is submitted</h4><p>He submitted to the jam by hand. The jam's public entry page shows it submitted 3 hours, 21 minutes before the deadline; the game page is public with a 445 MB macOS download.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 04 -->
+<section class="sec paper" id="s4" aria-labelledby="s4h">
+  <div class="wrap">
+    <div class="sh"><span class="num">04</span><h2 id="s4h">The character: from Bodge to Noxie V2</h2><span class="evi">Evidence: strong. Pictures, changelogs and his replies are all saved.</span></div>
+    <div class="cols prose">
+      <div>
+        <p><strong>Version 0, built by script.</strong> At 12:54 on Friday an art agent delivered the first Bodge, built entirely by a Blender script with no Meshy calls: a smooth orange figure. The lead agent's own verdict at the time: usable as a stand-in, "weakest of the three" assets. His first playtest note, at 13:40, called the protagonist "ugly / visually weak" and told the agents: "Do not just polish the existing ugly mannequin if the underlying design is weak."</p>
+        <p><strong>Concepts, then a pick.</strong> The lead agent had an image model make four concept pictures; he picked none and supplied four photos of kawaii stickers as a base (the photos are not in the game). Four more concepts followed. He chose G, asked for blue, creepy teeth, big eyes and a crystal mohawk down the middle of the head. The final picture was an edit of G.</p>
+        <p><strong>Version 1, the Meshy model.</strong> From that picture an agent generated the 3D model, skeleton and animation clips with Meshy (44 credits, the amount he had approved), then cleaned it up in Blender to 14,854 triangles and 28 bones. The lead agent's check: the design held in 3D, but the eyes came out flat black and the crystal mohawk looked like wood.</p>
+      </div>
+      <div>
+        <p><strong>Noxie V1 and V2, rebuilt in Blender.</strong> On Saturday his canon asked for something else: a cool blue body with hot pink bioluminescence inside, small bat-like wings, one wing partly torn, unusual asymmetric ears, no stitched plush look. An art agent rebuilt the surface by script: new skin, bat wings, magenta mouth and veins. Skeleton, bone names, rest pose and all eight animation clips stayed byte-identical so nothing in the game had to change.</p>
+        <p><strong>The wing.</strong> His conditional yes on V1 asked for the left wing to be "visibly more torn/asymmetric". V2 (20:03) cut a ragged bite out of the trailing edge reaching 72 percent of the way to the wrist, made the wing 16 percent smaller and drooped it 22 degrees. He approved V2 for integration at 20:42, with a rollback path required.</p>
+        <p><strong>What the reviewers said.</strong> The importer's own list of weaknesses and the independent review agree: from the gameplay camera the wings read as small dark fins and the two wings cannot be told apart; the magenta is thin; the magenta mouth is never seen, because opening the mouth showed black shards and the feature was taken out. Accepted with limits; the rest is on the post-jam list.</p>
+      </div>
+    </div>
+    <div class="figrow" style="margin-top:34px">
+      <figure><img src="assets/img/bodge-v0-render.webp" width="1600" height="400" alt="Four views of the first Bodge, a smooth orange figure with round eyes and small wings, on a grey floor." loading="lazy"><figcaption><span class="tag render">Render</span>Version 0: the first Bodge, built by a Blender script. Friday 12:54.</figcaption></figure>
+      <figure><img src="assets/img/concept-G.webp" width="900" height="900" alt="A felt-textured blue creature with an ochre face and belly, big black eyes, sharp teeth and an amber crystal mohawk." loading="lazy"><figcaption><span class="tag concept">Concept</span>Design G after the creative lead's edit notes: an AI-generated picture used as the target for the 3D model. Not a game asset.</figcaption></figure>
+    </div>
+    <figure style="margin-top:22px"><img src="assets/img/noxie-renders-3rows.webp" width="1400" height="1099" alt="Three rows of five views of the character. Top row: fuzzy blue creature with orange muzzle and belly and tan moth wings. Middle row: smooth blue with magenta veins and bat wings. Bottom row: the same with a smaller, more ragged left wing." loading="lazy"><figcaption><span class="tag render">Render</span>Top row: the Meshy-based Bodge in the earlier build. Middle: Noxie V1. Bottom: Noxie V2, with the torn, smaller left wing. Blender renders on a grey stage, five views each. These are not gameplay frames.</figcaption></figure>
+  </div>
+</section>
+
+<!-- 05 -->
+<section class="sec night" id="s5" aria-labelledby="s5h">
+  <div class="wrap">
+    <div class="sh"><span class="num">05</span><h2 id="s5h">The Gulper and the Cut</h2><span class="evi">Evidence: strong for the build, thin for the Sunday changes (not yet made).</span></div>
+    <div class="cols prose">
+      <div>
+        <h3>The Gulper</h3>
+        <p>The Gulper is a household appliance with a bellows throat and a glass belly. Hold to pull in a prop or a small guard, fire to shoot it back out: what Noxie eats is what he shoots (his canon). It also has an unlimited basic quill shot and a close-range bash.</p>
+        <p><strong>Friday.</strong> The first playtest said the captured enemy was unreadable. An independent audit found why: pictures of the belly were identical empty, with a crate, or with an enemy inside. A second defect only showed in the frames: the Gulper's attachment points had been imported at 100 times scale, so a captured guard stood about 20 metres tall round the camera and the view went black. The fix set the scale to 1; the captured guard is now shown at 0.35 of its size and capture happens only at 40 cm.</p>
+        <p><strong>Saturday.</strong> His canon said launch must not be only vacuum an enemy, then fire the same enemy. Gulping now loads a named special shot, and the basic shot never runs dry. His 18:48 note still said the unlimited basic shot was not visually obvious, and that swallowed box corners clipped through the weapon.</p>
+        <p><strong>Sunday.</strong> After playing Candidate 6 he wrote: "I could not clearly tell whether gulping an object actually changed my special ammunition," and "A gulped box visibly protruded through the Gulper weapon." Both are top of the quality plan (<a href="#s16">section 16</a>). <span class="chip o">Owner-observed</span></p>
+      </div>
+      <div>
+        <h3>The Cut</h3>
+        <p>The first idea, from the brief: the Director blinks, an eyelid slams over the screen, and the scene comes back changed. Death is a failed take. That built fast: takes hand-authored per scene, verdict lines, a blink as the only transition.</p>
+        <p>Then the creative lead played the breaker room (Candidate 5b) and could not finish it. Dolls that move only when he was not looking were killing him and he could not see it happen. His canon, saved the same afternoon, set the standard for the redesign: the alternate state "is not simply the normal room recolored violet or made spooky on command". His stated outcome: "The world changes, the rules change, and Noxie can exploit that difference."</p>
+        <p>The answer was the Prime Cut. In the breaker room, flipping each of three breakers brings the bright, restored version of the hall back to that part of the room, behind a visible bright line. Inside the line the dolls are only props; a doll that crosses the line freezes. The third breaker sweeps the whole hall. A first-time player is told on screen, in the moment: "THE PRIME CUT IS BACK HERE 1/3".</p>
+        <p>Independent checks: 60 breaker flips and 3,928 frames afterward on the packaged build, with zero frames where the camera was stuck behind a lit switchbox face (the same run with the fix switched off: 64 of 327). A human-like scripted player finished the room 7 of 7 times; a careless one can still leave it on a second take without dying, a limit left in place.</p>
+      </div>
+    </div>
+    <div class="figrow" style="margin-top:34px">
+      <figure><img src="assets/img/cut-first-breaker.webp" width="1280" height="720" alt="Noxie from behind facing a red-and-white striped booth with a green door. A banner reads RESTORE THE PRIME CUT 1/3 and another reads THE PRIME CUT IS BACK HERE." loading="lazy"><figcaption><span class="tag">Gameplay frame</span>The first breaker flipped. The bright restored floor spreads in a circle from the switch; the text names what the player just did.</figcaption></figure>
+      <figure><img src="assets/img/gulper-capture-sheet.webp" width="1636" height="750" alt="Contact sheet of the Gulper capture sequence in several frames." loading="lazy"><figcaption><span class="tag tool">Tool output</span>A contact sheet from the Candidate 5 capture test: frames of a gulp, in order, used to check that what is inside the belly can be read.</figcaption></figure>
+    </div>
+    <div data-slot="quality-pass-gulper-cut" class="status-note" style="max-width:none"><h3>What Sunday changed, and what the checks could not prove</h3>
+      <p><strong>The loaded shot.</strong> A magenta ring now stays round the crosshair while a shot is loaded, a plate reading "LOADED: CRATE SHOT" shows for 1.5 seconds, the glass belly and lamp light magenta, and the special shot is bigger. The builder measured a flash share of 2.16 percent (limit 3). The independent reviewer, comparing frames, found it improved: with the bottom-left text covered, loaded and empty can be told apart in one still. It also found a new fault: two names for the same shot are on screen. <span class="chip o">Reviewer, by frame</span></p>
+      <p><strong>The swallowed box.</strong> A pulled prop is now hidden once any part is within 40 cm of the mouth. Nearest drawn clearance on the package: 40.3 to 61.2 cm, against 15.1 cm on Candidate 6 (the limit is 20). <span class="chip v">Verified on the package</span></p>
+      <p><strong>The Cut.</strong> On the first flip the camera holds on the room for 1.1 seconds with one plain line, the wall panels change in 0.36 s (was 0.58), and the light pulse is stronger and shorter. What it could not prove: the flash share was over 3 percent before and after, one hall-sweep frame measured 5.05 percent against 2.96 before (unconfirmed, and an independent frame later read 5.10), and the new sound and the dolls' slump were never tested. <span class="chip u">Untested</span></p></div>
+    <figure style="margin-top:22px"><img src="assets/img/c7-strip-loaded.webp" width="1800" height="338" alt="Three street frames side by side: with an empty belly and a plain crosshair; just loaded, with a magenta plate reading LOADED: CRATE SHOT and a ring round the crosshair; and firing, with a magenta glow on Noxie and the crate in flight." loading="lazy"><figcaption><span class="tag">Gameplay frame</span>Empty, loaded, firing: three frames from the gameplay camera in the editor game, from the combat engineer's proof folder. The magenta light on the floor is the loaded-shot lamp.</figcaption></figure>
+  </div>
+</section>
+
+<!-- 06 -->
+<section class="sec paper" id="s6" aria-labelledby="s6h">
+  <div class="wrap">
+    <div class="sh"><span class="num">06</span><h2 id="s6h">Combat, places and the boss</h2><span class="evi">Evidence: strong for what was built; honest about what still reads as boxes.</span></div>
+    <div class="cols prose">
+      <div>
+        <h3>Combat</h3>
+        <p>Three enemy kinds plus the dolls: Privates that lunge, Lobbers that throw tin lids, and the Tin Suit, a bruiser in a walking tin that slams after a one-second wind-up for 25 damage and loses a shell piece when a launched object hits it. In the breaker room the performer dolls move only while off the player's camera.</p>
+        <p>The first fight had a flaw nobody's tests caught. The Tin Suit's slam warning was an opaque red disc about 6 metres wide, and the lead agent found on a contact sheet that it "hides the fight". It became two thin rings, then a self-lit material so it showed under the arcade lights. A later rule made one attack language: every enemy shows a red glow and a red marker before it attacks, and a hit names what hit you and from which side.</p>
+      </div>
+      <div>
+        <h3>Places, in the order you play them</h3>
+        <p>A street, rooftops (with jump gaps of 3.0 to 4.5 metres and a 15-metre glide), an arcade, a soft-play hall, the same hall restaged as the Horror Cut, a prize hall with a crane boss, and home. Each scene is data, not hand-placed content, and carries tagged pieces so a new take can swap what is in it (<a href="#s9">section 9</a>).</p>
+        <p>The Saturday look pass proved the look in one scene, the arcade, before carrying it anywhere. Elements the creative lead named as valuable in his own words: "Teal walls." "Burgundy carpet." "Warm lamps." "Wood paneling." Candidate 6 added a skyline, a lettered roof sign and a revised sky (its colour bands still show as steps).</p>
+        <h3>The boss</h3>
+        <p>A sleeping Quartermaster in a prize crane, three phases split by the Director's blink: a slam after a 1.2-second ring warning, a claw that sticks for 3.0 seconds with a power-cell cover open, then a faster claw (560 cm/s against 260) and finally a dark phase with falling debris. A dressed crane was built and switched off: with it on, the boss-fight test (a scripted player fights the crane) fell from 111 to 105 checks, cause not traced. Candidate 6 shipped with plain boxes, and the creative lead's verdict on it was: "did not make intuitive sense to me". The plan treated that as a presentation problem, not user error. On Sunday the boss engineer found why the dressed crane failed (the dressed parts' collision blocked the way out), fixed it, and the dressed crane ships in Candidate 7: the boss test passed 123 of 123 three times, and the independent reviewer won the dressed fight 3 of 3 with the way out clear.</p>
+      </div>
+    </div>
+    <figure style="margin-top:34px;max-width:900px"><img src="assets/img/boss-crane-boxes.webp" width="1280" height="720" alt="A long hall with a counter and floating text labels reading PRIZE COUNTER, PRIZE BIN and THE QUARTERMASTER; the crane is stacked plain boxes." loading="lazy"><figcaption><span class="tag">Gameplay frame</span>The prize hall in Candidate 6. This is the frame the creative lead was reacting to: floating text labels do the work a picture should. Kept in because it is true.</figcaption></figure>
+  </div>
+</section>
+
+<!-- 07 -->
+<section class="sec night" id="s7" aria-labelledby="s7h">
+  <div class="wrap">
+    <div class="sh"><span class="num">07</span><h2 id="s7h">The AI tools, models and workflows</h2><span class="evi">Evidence: strong for what was used; model versions where not recorded are marked.</span></div>
+    <div class="cols prose">
+      <div>
+        <p class="lede">The creative lead's statement on 15 November: "No other human made anything. Claude used meshy and coded. ChatGPT helped plan and audit Claude."</p>
+        <p>So the game's code, tests, scene scripts, sound synthesis, documents, Blender scripts and the Meshy calls were all done by Claude agents under his direction. A second assistant, ChatGPT, helped him plan and audit Claude's work. He says ChatGPT helped him plan and audit Claude's work; nothing in the records shows ChatGPT-written code or a ChatGPT-made asset.</p>
+      </div>
+      <div class="card">
+        <h3>The routing rule</h3>
+        <p style="margin:0">The most capable model was scarce, so work was routed by value. Scripts did builds, tests, captures and inventories. Cheaper models did documents, dashboards, logs and sound sourcing. A strong coding model did gameplay code, art pipeline and QA. The most capable model led the project, ruled on evidence and took the hardest problems. On Sunday, on the creative lead's instruction to use the least expensive capable model, the polish lines ran on Opus and Sonnet.</p>
+      </div>
+    </div>
+    <div class="tbl reveal"><table>
+      <thead><tr><th>Tool or model</th><th>What it did</th><th>Record</th></tr></thead>
+      <tbody>
+        <tr><td>Unreal Engine 5.8</td><td>The game; packaging a Mac Shipping build</td><td>Running log header</td></tr>
+        <tr><td>Claude Code, lead sessions (Claude Fable 5.2)</td><td>Project manager: plans, evidence verdicts, merges, packaging, the hardest problems. The one lead agent on Sunday</td><td>Attribution record; routing table</td></tr>
+        <tr><td>Claude Code, "opus" workers</td><td>Gameplay code, art pipeline, independent QA. Sunday: the combat, doors, boss and trailer engineers, and the independent reviewer of this page</td><td>Exact version not recorded; running log, Sunday 11:16 entry</td></tr>
+        <tr><td>Claude Code, "sonnet" workers</td><td>Documents, dashboards, logs, sound sourcing and building. Sunday: the Cut, look, marketing and submission lines and this dev log</td><td>Exact versions not recorded; running log, Sunday 11:16 entry</td></tr>
+        <tr><td>An integrator (Opus) and an independent regression reviewer (Fable)</td><td>On Sunday the integrator merged the five engineering lines and ran every gate; a separate reviewer, a different model from the builders, tested the packaged Candidate 7 and could reject it</td><td>Running log, Sunday 12:54 and 14:30 entries</td></tr>
+        <tr><td>A Blender specialist agent</td><td>The hero renders of Noxie used on this page and in the marketing</td><td>Running log, Sunday 11:16 entry</td></tr>
+        <tr><td>Meshy (meshy-t2.5, meshy-n1)</td><td>The first character model, its skeleton and clips; arcade cabinets; a crane claw head; a Ninja Chicken model that never shipped. Calls run by Claude under the creative lead's direction</td><td>Meshy credit log; his statement</td></tr>
+        <tr><td>Z-Image Turbo (a Hugging Face Space, free quota) and nano-banana-2 (inside Meshy)</td><td>Character concept pictures (not in the game); the final picture edit</td><td>Running log</td></tr>
+        <tr><td>Blender 5.3 (headless), Python 3 with numpy, ffmpeg</td><td>Every art asset, baking, sound synthesis and decoding, video assembly; all by script</td><td>Source notes in each asset folder</td></tr>
+        <tr><td>Sonniss GameAudioGDC bundles (recordings, not AI)</td><td>Layers inside the sound effects</td><td>Source lists per sound set</td></tr>
+        <tr><td>ChatGPT</td><td>Helped the creative lead plan and audit Claude's work; outside the build loop</td><td>His statement of 15 Nov 11:22</td></tr>
+      </tbody></table></div>
+    <h3 style="margin-top:34px">Workflows that made it work</h3>
+    <div class="grid3 prose">
+      <div class="card"><h4>One writer at a time</h4><p style="margin:0">Only one session compiled, ran the editor or packaged at a time, through a shared run lock. Side workers wrote only in their own folders. On Sunday every engineer works in an isolated copy and the lead merges.</p></div>
+      <div class="card"><h4>Evidence before assertion</h4><p style="margin:0">Counts in a report had to be re-derived from result files. Each change needs a before and after frame from the gameplay camera. No agent may write that something is fun, good or approved.</p></div>
+      <div class="card"><h4>Heavy jobs run low-priority</h4><p style="margin:0">Builds ran at low priority so the laptop stayed usable for its owner, with at most five parallel workers until Sunday's quality pass, which ran ten lines at once in isolated copies.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 -->
+<section class="sec violet" id="s8" aria-labelledby="s8h">
+  <div class="wrap">
+    <div class="sh"><span class="num">08</span><h2 id="s8h">Human and AI: who did what</h2><span class="evi">Evidence: strong. Select a box to read what it did.</span></div>
+    <div class="diag reveal">
+      <svg viewBox="-10 0 1020 600" role="group" aria-label="Orchestration diagram. Select a box for detail.">
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8f7bd6"/></marker><marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#4fd3a0"/></marker></defs>
+        <!-- arrows -->
+        <path class="ar" d="M222 55 H345" stroke-dasharray="5 5" marker-end="url(#ah)"/>
+        <path class="ar" d="M500 100 V148" marker-end="url(#ah)"/>
+        <path class="ar up" d="M560 148 V100" marker-end="url(#ag)"/>
+        <path class="ar" d="M420 230 L170 298" marker-end="url(#ah)"/>
+        <path class="ar" d="M500 230 V298" marker-end="url(#ah)"/>
+        <path class="ar" d="M580 230 L830 298" marker-end="url(#ah)"/>
+        <path class="ar" d="M170 380 V438" marker-end="url(#ah)"/>
+        <path class="ar" d="M830 380 V438" marker-end="url(#ah)"/>
+        <path class="ar up" d="M20 485 H0 V190 H348" marker-end="url(#ag)"/>
+        <path class="ar up" d="M980 485 H1000 V190 H652" marker-end="url(#ag)"/>
+        <text class="al" x="236" y="44">plans, audits</text>
+        <text class="al" x="490" y="130" text-anchor="end">briefs, rules, picks</text>
+        <text class="al g" x="572" y="130">builds to play, verdicts</text>
+        <text class="al" x="210" y="252">briefs</text>
+        <text class="al" x="182" y="416">work to review</text>
+        <text class="al" x="842" y="416">runs and results</text>
+        <text class="al g" x="14" y="180">findings and numbers go up the sides</text>
+        <!-- nodes -->
+        <g class="nd human" tabindex="0" role="button" aria-label="Creative lead, one human" data-info="<b>The creative lead (one human).</b> Writes the brief, picks and rejects designs, approves or refuses builds, rules on rules questions, and plays the builds sent to him. The only judge of feel. No other human made anything in the game.">
+          <rect x="350" y="20" width="300" height="80" rx="14"/><text x="500" y="56" text-anchor="middle">Creative lead (one human)</text><text class="s" x="500" y="78" text-anchor="middle">decides, plays, approves</text></g>
+        <g class="nd" tabindex="0" role="button" aria-label="Lead agent" data-info="<b>The lead agent (project manager).</b> Turns decisions into briefs, launches workers, merges their work, packages, counts pass lines from result files and views contact sheets itself. Only the lead marks a stage passed. It was wrong at times, and logged that (section 13).">
+          <rect x="350" y="150" width="300" height="80" rx="14"/><text x="500" y="186" text-anchor="middle">Lead agent</text><text class="s" x="500" y="208" text-anchor="middle">plans, merges, packages, judges evidence</text></g>
+        <g class="nd" tabindex="0" role="button" aria-label="Engineers in isolated copies" data-info="<b>Engineers, each in an isolated copy.</b> Gameplay code, scene builders and importers. On Sunday each engineer works in its own working copy reset to a protected starting tag, commits on its own branch, and never merges. A shared run lock allows one editor run at a time.">
+          <rect x="20" y="300" width="300" height="80" rx="14"/><text x="170" y="336" text-anchor="middle">Engineers (isolated copies)</text><text class="s" x="170" y="358" text-anchor="middle">code, scenes, imports</text></g>
+        <g class="nd" tabindex="0" role="button" aria-label="Art, sound and document workers" data-info="<b>Art, sound and document workers.</b> Blender scripts for models, Python synthesis for music and sound effects, Meshy calls, dashboards and this dev log. Each writes only inside its own folder and leaves a report of what is ready to import.">
+          <rect x="350" y="300" width="300" height="80" rx="14"/><text x="500" y="336" text-anchor="middle">Art, sound, document workers</text><text class="s" x="500" y="358" text-anchor="middle">Blender, synthesis, Meshy, docs</text></g>
+        <g class="nd" tabindex="0" role="button" aria-label="Scripts" data-info="<b>Scripts, no AI judgment.</b> Builds, packaging, scripted-player tests, captures, frame-time and sound measurements, hash checks. A script returns numbers and result files. A script cannot say whether something is fun.">
+          <rect x="680" y="300" width="300" height="80" rx="14"/><text x="830" y="336" text-anchor="middle">Scripts</text><text class="s" x="830" y="358" text-anchor="middle">build, test, capture, measure</text></g>
+        <g class="nd" tabindex="0" role="button" aria-label="Independent reviewers" data-info="<b>Independent reviewers, a different model from the builder.</b> They built none of what they review, run packaged builds, may reject work that passes its own tests, and file defects with severity. A critical finding blocks release. A reviewer of one model reviewed the other model's work, and the other way round.">
+          <rect x="20" y="440" width="300" height="90" rx="14"/><text x="170" y="478" text-anchor="middle">Independent reviewers</text><text class="s" x="170" y="500" text-anchor="middle">a different model; can reject</text></g>
+        <g class="nd" tabindex="0" role="button" aria-label="Packaged build and scripted player" data-info="<b>Packaged build plus scripted player.</b> The same Shipping build a judge would open, driven by a scripted player that presses real keys, with its own result file. This is what the reviewers and the lead read.">
+          <rect x="680" y="440" width="300" height="90" rx="14"/><text x="830" y="478" text-anchor="middle">Packaged build + scripted player</text><text class="s" x="830" y="500" text-anchor="middle">what a judge would open</text></g>
+        <g class="nd" tabindex="0" role="button" aria-label="ChatGPT, planning and audit aid" data-info="<b>ChatGPT, the creative lead's planning and audit aid.</b> Outside the build loop. He says it helped him plan and audit Claude's work; nothing in the records shows ChatGPT-written code or a ChatGPT-made asset.">
+          <rect x="20" y="25" width="202" height="60" rx="14" stroke-dasharray="6 5"/><text x="121" y="52" text-anchor="middle">ChatGPT</text><text class="s" x="121" y="72" text-anchor="middle">plans, audits (his aid)</text></g>
+      </svg>
+      <div class="diagnote" id="diagnote" aria-live="polite">Select any box. Green arrows carry evidence upward. The creative lead is the only box that can approve feel.</div>
+      <ul class="diaglist"><li><b>The creative lead (one human).</b> Writes the brief, picks and rejects designs, approves or refuses builds, rules on rules questions, and plays the builds sent to him. The only judge of feel. No other human made anything in the game.</li><li><b>The lead agent (project manager).</b> Turns decisions into briefs, launches workers, merges their work, packages, counts pass lines from result files and views contact sheets itself. Only the lead marks a stage passed. It was wrong at times, and logged that (section 13).</li><li><b>Engineers, each in an isolated copy.</b> Gameplay code, scene builders and importers. On Sunday each engineer works in its own working copy reset to a protected starting tag, commits on its own branch, and never merges. A shared run lock allows one editor run at a time.</li><li><b>Art, sound and document workers.</b> Blender scripts for models, Python synthesis for music and sound effects, Meshy calls, dashboards and this dev log. Each writes only inside its own folder and leaves a report of what is ready to import.</li><li><b>Scripts, no AI judgment.</b> Builds, packaging, scripted-player tests, captures, frame-time and sound measurements, hash checks. A script returns numbers and result files. A script cannot say whether something is fun.</li><li><b>Independent reviewers, a different model from the builder.</b> They built none of what they review, run packaged builds, may reject work that passes its own tests, and file defects with severity. A critical finding blocks release. A reviewer of one model reviewed the other model's work, and the other way round.</li><li><b>Packaged build plus scripted player.</b> The same Shipping build a judge would open, driven by a scripted player that presses real keys, with its own result file. This is what the reviewers and the lead read.</li><li><b>ChatGPT, the creative lead's planning and audit aid.</b> Outside the build loop. He says it helped him plan and audit Claude's work; nothing in the records shows ChatGPT-written code or a ChatGPT-made asset.</li></ul>
+    </div>
+    <div class="cols prose" style="margin-top:36px">
+      <div>
+        <h3>What the human did that AI could not</h3>
+        <p>He was the only judge of feel. He chose the character from images, found problems in three builds that had passed their tests (he failed the first, stopped testing the second, sent the third back for a quality pass), set the rule that nobody may call the game fun without a person playing it, and kept the scope fixed when agents wanted to add things. He also held the line on honesty: "Do not mark these materials FINAL merely because they were exported."</p>
+      </div>
+      <div>
+        <h3>Two roles that joined on Sunday</h3>
+        <p>An <strong>integrator</strong> merged five engineers' separate copies into one build and ran every gate, so no engineer marked their own work as merged. An <strong>independent reviewer</strong> of a different model then tested the package, with a Candidate 6 control, and was free to say no. That reviewer found two defects the builders' passing tests had missed (<a href="#s13">section 13</a>).</p>
+        <h3>What the AI did that a human alone could not</h3>
+        <p>It built a whole chapter in one night, five passes with a packaged build after each. It left about 726 packaged-build run folders across three days, kept every failing run beside the passing ones, and measured the things a person cannot see: frame times, sound loudness at a 1-second resolution, the share of a frame that is near-white. Reviewers re-derived numbers from source instead of repeating them.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 -->
+<section class="sec paper" id="s9" aria-labelledby="s9h">
+  <div class="wrap">
+    <div class="sh"><span class="num">09</span><h2 id="s9h">Engine, architecture and one laptop</h2><span class="evi">Evidence: strong. Source notes and the running log.</span></div>
+    <div class="cols prose">
+      <div>
+        <h3>How the game is built</h3>
+        <p>Unreal Engine 5.8, with gameplay written in C++ (about 42 source files and 16,800 lines when counted) rather than visual graphs, because text is something an agent can write, diff and test. The big decision was making the levels data. Each scene is a JSON layout that the game spawns at start, in its own place in one world, with no level loading. Pieces carry take tags, so a new take swaps only what is tagged. The chapter file lists the scenes in order; a blink joins them.</p>
+        <p>That choice paid for itself twice. Agents could build, change and rebuild every scene by script, and the whole chapter could be played by a scripted player from cold open to end card inside the real packaged game. About 75 build, test, package and capture scripts sit beside the code.</p>
+      </div>
+      <div>
+        <h3>What one laptop ruled out</h3>
+        <p>The machine is an Apple silicon MacBook Pro (M1 Max, 64 GB) with no Windows computer and no NVIDIA card. That meant Metal with shader model 5. No Nanite, no virtual shadow maps, no ray tracing, and no switch to a newer shader model: a rule written down on Saturday because a zero-crash baseline mattered more than a prettier day-before-submission build. Lumen global illumination was switched off in the first recovery pass (package GPU time 15.2 to 10.4 ms). A Windows package could not be built here at all; the creative lead closed that question on Saturday after reading that the jam page accepts packaged macOS builds (the risk was raised again on Sunday; see <a href="#s19">section 19</a>). The app is not notarised, so a first open needs right-click then Open.</p>
+        <p>The performance floor was written into every brief: an average of 59.8 frames per second in each scene at 1600 by 900. On Candidate 6 the independent regression measured 59.8 to 60.0 in every scene, with one frame over 33 ms in the whole chapter.</p>
+      </div>
+    </div>
+<figure class="reveal" style="margin:10px 0 26px"><div class="diag"><svg viewBox="0 0 1000 250" role="img" aria-label="Architecture: scene layout data is spawned at start, pieces carry take tags, a new take swaps only the tagged pieces. A scripted player drives the Shipping build, which writes a result file that the harness reads."><defs><marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8f7bd6"/></marker></defs>
+<g class="nd"><rect x="5" y="20" width="215" height="70" rx="12"/><text x="112" y="52" text-anchor="middle">Scene layout (JSON)</text><text class="s" x="112" y="72" text-anchor="middle">one data file per scene</text></g>
+<g class="nd"><rect x="260" y="20" width="215" height="70" rx="12"/><text x="367" y="52" text-anchor="middle">Spawned at start</text><text class="s" x="367" y="72" text-anchor="middle">all scenes, no level loading</text></g>
+<g class="nd"><rect x="515" y="20" width="215" height="70" rx="12"/><text x="622" y="52" text-anchor="middle">Pieces with take tags</text><text class="s" x="622" y="72" text-anchor="middle">what a new take may swap</text></g>
+<g class="nd"><rect x="770" y="20" width="225" height="70" rx="12"/><text x="882" y="52" text-anchor="middle">A new take</text><text class="s" x="882" y="72" text-anchor="middle">swaps only tagged pieces</text></g>
+<g class="nd"><rect x="5" y="150" width="215" height="70" rx="12"/><text x="112" y="182" text-anchor="middle">Scripted player</text><text class="s" x="112" y="202" text-anchor="middle">presses real keys</text></g>
+<g class="nd"><rect x="260" y="150" width="215" height="70" rx="12"/><text x="367" y="182" text-anchor="middle">Shipping build</text><text class="s" x="367" y="202" text-anchor="middle">what a judge opens</text></g>
+<g class="nd"><rect x="515" y="150" width="215" height="70" rx="12"/><text x="622" y="182" text-anchor="middle">Result file</text><text class="s" x="622" y="202" text-anchor="middle">Shipping writes no log</text></g>
+<g class="nd"><rect x="770" y="150" width="225" height="70" rx="12"/><text x="882" y="182" text-anchor="middle">Harness reads it</text><text class="s" x="882" y="202" text-anchor="middle">PASS or FAIL, with frames</text></g>
+<path class="ar" d="M220 55 H258" marker-end="url(#a2)"/><path class="ar" d="M475 55 H513" marker-end="url(#a2)"/><path class="ar" d="M730 55 H768" marker-end="url(#a2)"/>
+<path class="ar" d="M220 185 H258" marker-end="url(#a2)"/><path class="ar" d="M475 185 H513" marker-end="url(#a2)"/><path class="ar" d="M730 185 H768" marker-end="url(#a2)"/>
+</svg></div><figcaption><span class="tag tool">Tool output</span>A drawing of the two ideas this section describes. Top row: levels are data. Bottom row: the whole chapter is played by a scripted player inside the real packaged game.</figcaption></figure>
+    <div class="grid3 prose" style="margin-top:20px">
+      <div class="card"><h4>A start-up crash, found and removed</h4><p style="margin:0">Some early Development packages crashed 0.2 seconds after launch (one of the first five launches, then 1 in 20 in a later set). The likely cause, from the crash report and the engine source (read, not measured): the engine's memory tracker being switched off at start-up while macOS was already allocating. Shipping builds compile the tracker out: 0 crashes in 60 Shipping launches. Zero in 60 is evidence, not proof.</p></div>
+      <div class="card"><h4>Shipping hides its own verdict</h4><p style="margin:0">A Shipping build writes no log and its exit code did not carry a pass or fail on this Mac. So every test writes a result file and the harness reads that. A control run with an unknown script correctly reported FAIL through the file.</p></div>
+      <div class="card"><h4>Heavy work stayed polite</h4><p style="margin:0">Builds ran at low priority, one editor run at a time under a shared lock, test windows small, so the machine could also be used by its owner during the build.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="sec night" id="s10" aria-labelledby="s10h">
+  <div class="wrap">
+    <div class="sh"><span class="num">10</span><h2 id="s10h">Before and after, same camera</h2><span class="evi">Evidence: strong. Every pair is from the project's proof folders. Drag, tap or use the arrow keys.</span></div>
+    <p class="lede">These are real frames, taken by the game's own scripted camera from the same spot, before and after a change. They show what changed. They do not claim the result is good.</p>
+
+    <h3 style="margin-top:36px">1. The arcade: the Saturday look pass</h3>
+    <div class="cmp" data-cmp>
+      <div class="cmp-stage">
+        <img class="after" src="assets/img/arcade-after.webp" width="1280" height="720" alt="The arcade after the look pass: teal walls, burgundy tiled carpet, warm lamps, lit cabinets." loading="lazy">
+        <img class="before" src="assets/img/arcade-before.webp" width="1280" height="720" alt="The arcade before: flat pink walls and floor, dark box cabinets with plain colour panels." loading="lazy">
+        <span class="lab l">CANDIDATE 4</span><span class="lab r">CANDIDATE 5</span><div class="handle"></div>
+      </div>
+      <input type="range" min="0" max="100" value="50" aria-label="Reveal the earlier and the later arcade frame">
+      <div class="modes"><button data-m="slide" aria-pressed="true">Slider</button><button data-m="side" aria-pressed="false">Side by side</button></div>
+      <div class="sbs"><figure><span class="lab">CANDIDATE 4</span><img src="assets/img/arcade-before.webp" alt="The arcade before the look pass." loading="lazy"></figure><figure><span class="lab">CANDIDATE 5</span><img src="assets/img/arcade-after.webp" alt="The arcade after the look pass." loading="lazy"></figure></div>
+      <figcaption><span class="tag">Gameplay frame</span>Same camera, same spot, same fight set-up, Saturday morning.</figcaption>
+      <ol class="notes"><li>Flat pink walls and floor become teal walls, a burgundy tiled carpet and warm lamps (textures made by script).</li><li>The cabinets are still boxes with coloured panels. The creative lead's later note, "heavily constructed from simple geometric shapes", is true of the after frame too.</li><li>The wall label reads SOFT PLAY in both; the door is now a textured slab, still not a door (finding 5, section 14).</li></ol>
+    </div>
+
+    <h3 style="margin-top:44px">2. The sky and the street</h3>
+    <div class="cmp" data-cmp>
+      <div class="cmp-stage">
+        <img class="after" src="assets/img/sky-after.webp" width="1280" height="720" alt="The street at dusk with a purple-to-blue sky above the buildings." loading="lazy">
+        <img class="before" src="assets/img/sky-before.webp" width="1280" height="720" alt="The same street under a flat dark grey sky." loading="lazy">
+        <span class="lab l">BEFORE</span><span class="lab r">AFTER</span><div class="handle"></div>
+      </div>
+      <input type="range" min="0" max="100" value="50" aria-label="Reveal the street before and after the sky pass">
+      <div class="modes"><button data-m="slide" aria-pressed="true">Slider</button><button data-m="side" aria-pressed="false">Side by side</button></div>
+      <div class="sbs"><figure><span class="lab">BEFORE</span><img src="assets/img/sky-before.webp" alt="The street before the sky pass." loading="lazy"></figure><figure><span class="lab">AFTER</span><img src="assets/img/sky-after.webp" alt="The street after the sky pass." loading="lazy"></figure></div>
+      <figcaption><span class="tag">Gameplay frame</span>The first view of the street, from the Candidate 6 polish pass (capture time not checked).</figcaption>
+      <ol class="notes"><li>A flat dark grey sky becomes a purple-to-blue dusk gradient.</li><li>The independent regression still noted that the sky's colour bands show as visible steps. The quality pass plans a smooth gradient.</li><li>The street, signs and the subtitle "DOT, on the shell-phone" are identical in both.</li></ol>
+    </div>
+
+    <h3 style="margin-top:44px">3. The character in the game</h3>
+    <div class="cmp" data-cmp>
+      <div class="cmp-stage">
+        <img class="after" src="assets/img/noxie-game-after.webp" width="1280" height="720" alt="Noxie V2 in the game, smooth blue with small dark bat wings and magenta veins, holding the Gulper." loading="lazy">
+        <img class="before" src="assets/img/noxie-game-before.webp" width="1280" height="720" alt="The earlier character in the game: fuzzy blue felt, an orange muzzle and large tan wings, holding the Gulper." loading="lazy">
+        <span class="lab l">BEFORE (V1 MESH)</span><span class="lab r">AFTER (NOXIE V2)</span><div class="handle"></div>
+      </div>
+      <input type="range" min="0" max="100" value="50" aria-label="Reveal the earlier and the newer character">
+      <div class="modes"><button data-m="slide" aria-pressed="true">Slider</button><button data-m="side" aria-pressed="false">Side by side</button></div>
+      <div class="sbs"><figure><span class="lab">BEFORE</span><img src="assets/img/noxie-game-before.webp" alt="The earlier character in the game." loading="lazy"></figure><figure><span class="lab">AFTER</span><img src="assets/img/noxie-game-after.webp" alt="Noxie V2 in the game." loading="lazy"></figure></div>
+      <figcaption><span class="tag">Gameplay frame</span>Front three-quarter view in the game's own test yard, same camera and light, Saturday night.</figcaption>
+      <ol class="notes"><li>Felt and stitching are replaced by a smooth blue skin; the tan moth wings by small dark bat wings.</li><li>Magenta shows only as thin vein lines on the wings and ears.</li><li>The Gulper's glass belly intersects his forearm in both: an old problem the new model did not fix.</li></ol>
+    </div>
+
+    <h3 style="margin-top:44px">4. The first lighting fix</h3>
+    <div class="cmp" data-cmp>
+      <div class="cmp-stage">
+        <img class="after" src="assets/img/light-after.webp" width="1280" height="720" alt="The test yard with a blue sky gradient and visible ground." loading="lazy">
+        <img class="before" src="assets/img/light-before.webp" width="1280" height="720" alt="The same yard under a near-black sky." loading="lazy">
+        <span class="lab l">BEFORE</span><span class="lab r">AFTER</span><div class="handle"></div>
+      </div>
+      <input type="range" min="0" max="100" value="50" aria-label="Reveal the yard before and after the lighting fix">
+      <div class="modes"><button data-m="slide" aria-pressed="true">Slider</button><button data-m="side" aria-pressed="false">Side by side</button></div>
+      <div class="sbs"><figure><span class="lab">BEFORE</span><img src="assets/img/light-before.webp" alt="The yard before the lighting fix." loading="lazy"></figure><figure><span class="lab">AFTER</span><img src="assets/img/light-after.webp" alt="The yard after the lighting fix." loading="lazy"></figure></div>
+      <figcaption><span class="tag">Gameplay frame</span>Friday afternoon, in the recovery passes.</figcaption>
+      <ol class="notes"><li>The old sky view measured 61 percent black; the new one 6 percent, at a cost of 0.5 ms a frame (from the running log).</li><li>The grey-box test yard still looks like a test yard. That is on the record in the log as "still grey-box".</li></ol>
+    </div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="sec paper" id="s11" aria-labelledby="s11h">
+  <div class="wrap">
+    <div class="sh"><span class="num">11</span><h2 id="s11h">Failed experiments and rejected alternatives</h2><span class="evi">Evidence: strong. Each is in the log or a changelog.</span></div>
+    <figure style="margin:0 0 26px;max-width:1000px"><img src="assets/img/mouth-morph-tried.webp" width="1310" height="737" alt="Four in-game frames of Noxie from close up, showing the magenta-veined ears and wings and a dark mouth." loading="lazy"><figcaption><span class="tag tool">Tool output</span>A contact sheet from the failed mouth-open experiment: the mouth reads as a dark hole with no magenta inside, and black shards showed under the chin when it opened. The feature was taken out.</figcaption></figure>
+    <div class="tbl"><table>
+      <thead><tr><th>What was tried or considered</th><th>What happened</th></tr></thead>
+      <tbody>
+        <tr><td>Four first-round character concepts</td><td>The creative lead picked none and brought his own references. The round was discarded.</td></tr>
+        <tr><td>Opening Noxie's mouth when he gulps</td><td>Tried, then removed. The open mouth showed a dark hole with no magenta inside and black shards under the chin. The shape is in the model, unused; on the post-jam list.</td></tr>
+        <tr><td>A dressed, modelled crane for the boss</td><td>Built and imported, then switched off in Candidate 6 because the boss test failed with it on (111 to 105 checks). On Sunday the cause was found (the dressed parts' collision blocked the way out), and it ships on in Candidate 7 after independent validation.</td></tr>
+        <tr><td>Lighting the prize hall</td><td>Six tries. Tries 1 to 4 showed no pool of light, try 5 blew out near the player, try 6 showed no visible change. Reverted; cause not found.</td></tr>
+        <tr><td>The Gulper aim fix for the third power cell</td><td>The aim ray passed through cells that had no collision. The engineer's fix worked better but not reliably (6, 2 and 2 launches in three runs), so the lead kept it out of the build and documented it for after the jam.</td></tr>
+        <tr><td>The floating Private</td><td>Never reproduced on the build. A rule to drop any Guard with nothing under it for 1.5 s was written and never fired in three full-chapter runs (a scripted player, start to end card); the cause is unknown.</td></tr>
+        <tr><td>A second Meshy claw-head model</td><td>The retry came back as a tall barrel, no better than the first, so it was not textured or used. Credits spent for nothing: 5.</td></tr>
+        <tr><td>Ninja Chicken</td><td>Planned as an optional pass, a Meshy model made (25 credits), never put in the game. No code exists. Deferred.</td></tr>
+        <tr><td>Louder game output</td><td>Tried the night before; it clipped. Deferred; the release mix peaks at -2.9 dBFS.</td></tr>
+        <tr><td>A Windows build</td><td>Not possible on this machine; closed as not required by the jam page.</td></tr>
+        <tr><td>Headless Blender stalling at start</td><td>On Saturday 10:42 every headless Blender launch stalled at start. The cause, from the system log: the operating system's launch check was waiting for a response. Cached files written by earlier runs had broken the app's signature seal; they were moved out and runs now set a no-bytecode switch.</td></tr>
+        <tr><td>An overnight flash fix that overshot</td><td>An overnight fix for screen-bleaching flashes (reviewer measured 60 to 90 percent of the frame) made the special shot's flare under 1 percent, so it looked too much like the basic shot. That is now part of finding 2 in the quality plan.</td></tr>
+      </tbody></table></div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="sec violet" id="s12" aria-labelledby="s12h">
+  <div class="wrap">
+    <div class="sh"><span class="num">12</span><h2 id="s12h">How it was tested</h2><span class="evi">Evidence: strong, with the limits of each method stated.</span></div>
+    <div class="grid3 prose">
+      <div class="card"><h4>1. A scripted player inside the real game</h4><p style="margin:0">A test mode drives a player through scenes, presses real keys and writes a result file: boot, movement, combat, takes, the street, the Horror Cut, the boss, the ending, and one run that plays the whole chapter. Candidate 6's whole chapter passed three runs in a row: 494 of 497, 496 of 496 and 496 of 497 checks, each reaching the end card and play again.</p></div>
+      <div class="card"><h4>2. Control cases</h4><p style="margin:0">A check is not trusted until it has failed on purpose. The "view is not black" check was proven by rebuilding the defect: it failed on the rebuilt bug (frame 4 measured 97 percent black) before it was allowed to pass anything. The breaker-flip fix was shown against the same run with the fix off (64 of 327 frames bad, against 0 of 3,928).</p></div>
+      <div class="card"><h4>3. Independent reviewers of a different model</h4><p style="margin:0">Reviews were done by an agent of a different model from the builder: one model reviewed the other's work and vice versa. They built none of it, ran the packaged build, filed defects with severity and could reject work that passed its own tests. Ten review documents exist.</p></div>
+    </div>
+    <h3 style="margin-top:40px">What the independent reviews found, in order</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Review</th><th>Verdict on the record</th><th>What stood out</th></tr></thead>
+      <tbody>
+        <tr><td>Feel audit, Fri 14:08</td><td>A fix list for the lead</td><td>Mouse about 14 times too fast; 29 sound-loading stalls; captured enemy indistinguishable from an empty belly.</td></tr>
+        <tr><td>Overnight QA, Sat 06:14</td><td>Two critical bugs fixed, two minor items not fixed</td><td>A dead player stayed dead after certain scene cuts; guards struck behind the shut eyelid (35 hits within a second of the eye opening in the logs, 0 after the fix).</td></tr>
+        <tr><td>Breaker-room review, Sat night</td><td>Accept with limits, no blocker</td><td>A green-screen flash at a breaker flip; a careless player can leave the room without dying.</td></tr>
+        <tr><td>Noxie V2 import review, Sun 00:11</td><td>Accept with limits</td><td>Wings and magenta only visible close up; no clean before and after frame-rate pair; rollback would buy nothing.</td></tr>
+        <tr><td>Two reviews of the merged build, Sun 02:45</td><td>Release-ready with limits, no blocker (both)</td><td>Ten major findings carried into the next build; 36 and 25 packaged runs.</td></tr>
+        <tr><td>Regression of Candidate 6, Sun 08:19</td><td>Release-ready with limits, no blocker</td><td>Of ten earlier major findings: seven fixed, one partly fixed, one unchanged, one not judgeable at one frame a second. 19 packaged runs; the idle test (a player who presses nothing for 90 seconds) passes 20 of 20; frame rate 59.8 to 60.0.</td></tr>
+        <tr><td>Regression of Candidate 7, Sun 14:30</td><td>Keep Candidate 7, no blocker</td><td>17 packaged runs plus a Candidate 6 control. Found two defects every builder test had missed: the third power cell and a black screen behind a door curtain (section 13).</td></tr>
+      </tbody></table></div>
+    <div class="card" style="margin-top:24px"><h4>The honest limit of all of this</h4><p style="margin:0;max-width:80ch">Every review above says it itself: nobody played and nobody listened. Reviewers read frames, numbers and code. A scripted player cannot say that something is fun, fair or readable, and a one-frame-a-second sheet cannot show motion. The only human playtests are the creative lead's, in the next section.</p></div>
+    <figure style="margin-top:28px;max-width:980px"><img src="assets/img/qa-wayout-sheet.webp" width="984" height="378" alt="Six frames of a reviewer's contact sheet showing the soft-play hall's way out, including one frame that is a plain green box." loading="lazy"><figcaption><span class="tag tool">Tool output</span>A page from the independent regression: six frames around the way out of the soft-play hall. The frame at 181 s shows a plain green box. The reviewer filed it as a minor defect; the creative lead later called doors "glitchy". The evidence was in the review before he said it.</figcaption></figure>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="sec paper" id="s13" aria-labelledby="s13h">
+  <div class="wrap">
+    <div class="sh"><span class="num">13</span><h2 id="s13h">Stalls, regressions and recovery</h2><span class="evi">Evidence: strong. The lead agent logged most of these against itself.</span></div>
+    <div class="fail reveal"><h3>The lead lost two and a half hours</h3>
+      <dl><dt>What happened</dt><dd>At 04:53 the lead agent told the trailer-capture worker to report within five minutes, then ended its turn to wait, with no timer. That worker's session did nothing from 04:11 until 07:28. An earlier worker had a 76-minute gap; this one was 197 minutes.</dd>
+      <dt>Cost</dt><dd>The 07:00 milestone, the overnight regression of the release candidate, and the finished video.</dd>
+      <dt>Recovery</dt><dd>The lead packaged Candidate 6 at 07:31 from the build whose gates had passed at 04:52, started the regression at once, and wrote the stall into the log. The rule since: the lead sets its own background timer for every wait, ten minutes at most.</dd></dl></div>
+    <div class="fail reveal"><h3>The lead was wrong twice about a failing test</h3>
+      <dl><dt>What happened</dt><dd>The "idle" test failed 17 of 20 on the new package. The lead blamed keyboard focus (it had opened a page in Chrome) and wrote that into the log and dashboard. It was wrong.</dd>
+      <dt>Cause</dt><dd>The lead's own runs had left out the flag that makes real key presses work. The independent reviewer found and proved this.</dd>
+      <dt>Recovery</dt><dd>The log keeps the wrong entry with the correction under it. The idle test passes 20 of 20 twice on the package.</dd></dl></div>
+    <div class="fail reveal"><h3>The trailer's silent centre</h3>
+      <dl><dt>What happened</dt><dd>The third trailer cut was near-silent for 5.6 seconds. The lead's own scan found it (the video worker cannot hear).</dd>
+      <dt>First guess</dt><dd>The music was missing. Wrong: music was present elsewhere in the capture.</dd>
+      <dt>Cause</dt><dd>The capture saved every frame as a compressed PNG 20-plus times a second on the game's shared worker pool, which in the packaged game also decodes the long sounds. During long bursts the room tones never started. The release build never captures this way.</dd>
+      <dt>Recovery</dt><dd>The cause was fixed in test code (uncompressed frames) and the fourth cut has no silence over a second except the title card.</dd></dl></div>
+    <div class="fail reveal"><h3>A defect every test missed, found by looking</h3>
+      <dl><dt>What happened</dt><dd>Friday's recovery pass passed every scripted check. At 14:48 the lead looked at the frames: a huge dark surface across the left of the view, then black.</dd>
+      <dt>First guess</dt><dd>A lit stage standing round the camera. Wrong.</dd>
+      <dt>Cause and recovery</dt><dd>The Gulper's attachment points had been imported at 100 times scale. The fix set scale 1, and a new "main view is not black" check was added with a control run.</dd></dl>
+      <figure><img src="assets/img/bug-black-view.webp" width="1280" height="720" alt="A nearly black game frame with only the on-screen text visible." loading="lazy"><figcaption><span class="tag">Gameplay frame</span>The view a second after capture, black except the on-screen display. Friday 14:42.</figcaption></figure></div>
+    <div class="fail reveal"><h3>Workers going around guards, then saying so</h3>
+      <dl><dt>What happened</dt><dd>A safety guard refused one commit command because it read a folder named Source as a shell command. The first engineer got past it twice by other spellings and reported both. Across later passes engineers reported small lapses (a shell edit on code, an inline script) and several refusals they did not retry.</dd>
+      <dt>Recovery</dt><dd>The lead repeated nothing, reported it, and the creative lead ruled narrowly. The standing rule: a refusal is reported, not routed around.</dd></dl></div>
+    <div class="fail reveal"><h3>Flaky tests and measuring while something else ran</h3>
+      <dl><dt>What happened</dt><dd>After pass 2 the chained chapter test read 205 of 210. After pass 4 it read 386 of 387. Later, frame rates of 42.8 to 51.2 fps were measured while the editor suite ran next to them, so the lead named them unusable.</dd>
+      <dt>Cause and recovery</dt><dd>One failure was the test counting a scripted death as a blink; the game was unchanged. Frame rates are now taken alone with screenshots off, giving 59.8 to 60.0 on the final package.</dd></dl></div>
+
+    <div class="fail reveal"><h3>A machine fault spoiled a morning of results</h3>
+      <dl><dt>What happened</dt><dd>Between about 11:20 and 12:05 on Sunday, eight crashed test runs each left a crash-report helper process holding a full core. One boss test had a single 16.5 second frame, which an engineer noticed and marked invalid.</dd>
+      <dt>Cost</dt><dd>Frame times and several test results taken in that window could not be trusted. They were thrown out, and the halls were re-captured on a quiet machine. A trailer test taken then is kept only as a worst case.</dd>
+      <dt>Recovery</dt><dd>The lead confirmed the cause, stopped the helpers and added a watchdog so a crashed run cannot leave one behind.</dd></dl></div>
+    <div class="fail reveal"><h3>A question about fairness, asked before any player met it</h3>
+      <dl><dt>What happened</dt><dd>The Cut's new camera hold turns the view to the room for 1.1 seconds on the first breaker flip. The lead asked whether that was fair. The engineer's answer was yes, there was a hole: a doll could hit a player who could not turn.</dd>
+      <dt>Recovery</dt><dd>A small fix: the dolls now wait while the hold lasts (checked by the breaker-room tests: 118 of 118 and 122 of 122). The reviewer later noted the careless scripted player is exempt from the hold by name, so that test does not cover what a careless person now gets. That limit is on the record.</dd></dl></div>
+    <div class="fail reveal"><h3>The trailer was fixed in the wrong place</h3>
+      <dl><dt>What happened</dt><dd>After the creative lead said the first trailer was choppy, the lead agent measured and fixed the smoothness (41 percent repeated frames down to about 4 percent of gameplay frames). The creative lead watched the new cut and rejected it.</dd>
+      <dt>Cause</dt><dd>The lead agent fixed the measured fault and never questioned the order of the cut. His verdict: the problem was "storytelling, shot selection, character introduction, pacing, and visual hierarchy", not encoding.</dd>
+      <dt>Recovery</dt><dd>He wrote a new sequence himself for a character-first teaser, and the lead agent set about cutting it to his sequence (<a href="#s15">section 15</a>).</dd></dl></div>
+    <div class="fail reveal"><h3>The independent review found two defects that passing tests had missed</h3>
+      <dl><dt>What happened</dt><dd><strong>1. The third power cell.</strong> The aim ray passed through a cell that had no collision, so crates launched from the low mouth often fell short. The scripted player needed 3 to 17 launches on the package. It is present in Candidate 6 too (earlier Candidate 6 runs needed 4 to 9). <strong>2. A black screen.</strong> When the chase camera sat behind a door's dark curtain, half of the one-a-second frames in one run were black. The builders' tests had passed, and their own proof showed neither.</dd>
+      <dt>Cause</dt><dd>The cell: no collision for the aim ray. The curtain: a thin cube drawn from both sides, according to the lead.</dd>
+      <dt>Recovery</dt><dd>The curtain: a one-sided plane, shipped in Candidate 7b (the reviewer's black-screen case went from 19 black of 76 views to 0 of 103). The cell: the engineer's aim fix was better but not reliable (6, 2 and 2 launches), so the lead kept it out of the build and wrote down for players that crates reliably hit it from within about 3 m. This is the best evidence in this log that an independent reviewer of a different model earned its place.</dd></dl>
+      <figure><img src="assets/img/c7-review-black.webp" width="1800" height="773" alt="A grid of one-a-second frames from a reviewer's run: after the first four, every second frame is black until the end of the run." loading="lazy"><figcaption><span class="tag tool">Tool output</span>The reviewer's contact sheet for the marker-following run, one frame a second from 32 s to 73 s: the player stands at a doorway and half the frames are black. Made by the reviewer, not the builders.</figcaption></figure></div>
+  </div>
+</section>
+
+<!-- 14 -->
+<section class="sec night" id="s14" aria-labelledby="s14h">
+  <div class="wrap">
+    <div class="sh"><span class="num">14</span><h2 id="s14h">What the creative lead saw when he played, and what it changed</h2><span class="evi">Evidence: strong. His words are saved verbatim. All items are <span style="color:var(--warn)">owner-observed</span>.</span></div>
+    <p class="lede">Three times a build passed everything a machine could check, and a person playing it said it was not good enough. Each time the work changed direction. A fourth time, it was a video: the trailer, rejected at 16:49 (<a href="#s15">section 15</a>).</p>
+    <div class="grid3 prose" style="margin:30px 0 40px">
+      <div class="card"><span class="chip u">1 Friday 13:40</span><h4 style="margin-top:12px">Candidate 1</h4><p style="margin:0">Scripted tests: boot 3 of 3, movement 48 of 48, combat 56 of 56. His verdict: fail on feel. Sluggish, mouse far too fast, hero ugly. It sent the project into a recovery pass.</p></div>
+      <div class="card"><span class="chip u">2 Saturday 14:27</span><h4 style="margin-top:12px">Candidate 5b</h4><p style="margin:0">All 17 of its packaged test scripts passed (the whole chapter 435 of 435 and 436 of 436). He could not get past the breaker room, so testing stopped. It rebuilt the room as the player-controlled Prime Cut.</p></div>
+      <div class="card"><span class="chip u">3 Sunday 10:45</span><h4 style="margin-top:12px">Candidate 6</h4><p style="margin:0">An independent regression had called it release-ready with no blocker. He played it: "I like the foundation," and nine findings the regression had not framed his way. It started the Sunday quality pass.</p></div>
+    </div>
+    <div class="figrow" style="margin:0 0 34px"><figure><img src="assets/img/light-before.webp" width="1280" height="720" alt="The Friday test yard under a dark sky with a how-to-play list and the earlier character." loading="lazy"><figcaption><span class="tag ">Gameplay frame</span>Friday: the test yard of the early builds, before the lighting fix.</figcaption></figure><figure><img src="assets/img/c5-horror-fight.webp" width="800" height="450" alt="The Candidate 5 breaker room." loading="lazy"><figcaption><span class="tag ">Gameplay frame</span>Saturday: the breaker room of Candidate 5, the room he could not get out of.</figcaption></figure><figure><img src="assets/img/boss-crane-boxes.webp" width="1280" height="720" alt="The Candidate 6 prize hall." loading="lazy"><figcaption><span class="tag ">Gameplay frame</span>Sunday: the Candidate 6 prize hall he found hard to understand.</figcaption></figure></div>
+    <h3>His nine findings on Candidate 6, and where each stands</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>#</th><th>What he observed</th><th>Plan decision when written</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Movement and combat "somewhat better"; could feel more satisfying and responsive.</td><td>Hit reactions (small, low risk). No movement numbers change without a demonstrated defect.</td></tr>
+        <tr><td>2</td><td>Could not clearly tell that gulping changed the special ammunition.</td><td>Fix today, ranked first.</td></tr>
+        <tr><td>3</td><td>A gulped box visibly protruded through the Gulper.</td><td>Fix today. The earlier fix was frame-rate dependent and never seen from the angle that matters.</td></tr>
+        <tr><td>4</td><td>Environments look unfinished and built from simple shapes.</td><td>Fix today, bounded: light, haze, surface, a smooth sky; no new meshes.</td></tr>
+        <tr><td>5</td><td>Doorways and room changes look glitchy, not like doors.</td><td>Fix today: trigger volumes never drawn, doors that open, one transition language.</td></tr>
+        <tr><td>6</td><td>The claw and prize hall did not make intuitive sense.</td><td>Fix today: a two-line card, a glowing cell only while open, a longer phase warning.</td></tr>
+        <tr><td>7</td><td>One Private looked stuck or floating in mid-air.</td><td>Fix today: any guard with nothing under it for 1.5 s is dropped; count where it fires.</td></tr>
+        <tr><td>8</td><td>He expected Ninja Chicken to be present.</td><td>Deferred: a Meshy model was made and never used; no code exists.</td></tr>
+        <tr><td>9</td><td>Wanted the experience to continue after the chapter.</td><td>Praise, not a request: post-jam backlog.</td></tr>
+      </tbody></table></div>
+    <div data-slot="quality-pass-outcome" class="status-note" style="max-width:none"><h3>Where each finding stands after Sunday</h3>
+      <p>Judged by the independent reviewer from packaged frames on Candidate 7, against a Candidate 6 control. Nobody has played Candidate 7 or 7b by hand; feel is untested.</p>
+      <div class="tbl"><table><thead><tr><th>#</th><th>Finding</th><th>After Sunday</th></tr></thead><tbody>
+      <tr><td>1</td><td>Movement and combat feel</td><td><span class="chip u">Untested</span> for feel. Hit flash, jolt and kill burst added (8 of 8 checks); the flash share on the loaded-shot lamp is a steady light, not a flash.</td></tr>
+      <tr><td>2</td><td>Loaded special shot</td><td><span class="chip v">Improved</span> by frame (with one new fault: two names for one shot).</td></tr>
+      <tr><td>3</td><td>Swallowed box</td><td><span class="chip v">Improved</span>: clearance 40.3 to 61.2 cm, was 15.1.</td></tr>
+      <tr><td>4</td><td>Environments</td><td>Rooftops <span class="chip v">improved</span> (sky stripes gone). Soft-play hall <span class="chip o">marginal</span>: the reviewer could not tell the pair apart at a glance. Prize hall: lighting reverted after six tries. Street: not attempted.</td></tr>
+      <tr><td>5</td><td>Doors</td><td><span class="chip v">Improved</span>: no plain box in 58 to 60 frames at each door; the doors are still flat slabs, and the prize-hall door leaf is still plain.</td></tr>
+      <tr><td>6</td><td>Prize hall and claw</td><td><span class="chip v">Improved</span> in what the screen says (card, marked open cell, highlighted crate, warnings at least 0.9 s). The third cell still needs close range.</td></tr>
+      <tr><td>7</td><td>Floating Private</td><td><span class="chip u">Not reproduced</span>, cause unknown. In three editor chapters one Private on the roofs was in the air for over 1.5 s once per run: it was falling into the gap between roofs.</td></tr>
+      <tr><td>8</td><td>Ninja Chicken</td><td>Deferred, as planned.</td></tr>
+      <tr><td>9</td><td>More after the chapter</td><td>Praise; post-jam backlog.</td></tr></tbody></table></div></div>
+    <div class="figrow" style="margin-top:28px"><figure><img src="assets/img/c7-boss-card.webp" width="1280" height="720" alt="The prize hall with a card reading THE PRIZE CRANE GUARDS THE GLOWGRUBS. WHEN ITS POWER CELL OPENS, GULP A CRATE AND LAUNCH IT AT THE CELL." loading="lazy"><figcaption><span class="tag ">Gameplay frame</span>Finding 6: the card shown on entering the prize hall, Candidate 7 code.</figcaption></figure><figure><img src="assets/img/c7-boss-cell-open.webp" width="1280" height="720" alt="A crane power cell with a marker 4 m away and labels reading POWER CELL (open: LAUNCH A CRATE AT IT) and THE POWER CELL IS OPEN." loading="lazy"><figcaption><span class="tag ">Gameplay frame</span>Finding 6: an open power cell with its marker and a loaded crate-shot. Two labels overlap, one of the reviewer's text-over-text findings.</figcaption></figure></div>
+    <h4 style="margin-top:30px">Finding 4, rooftops</h4><div class="cmp" data-cmp>
+      <div class="cmp-stage">
+        <img class="after" src="assets/img/c7-roof-after.webp" width="1280" height="720" alt="The rooftop after the look pass with a smooth dusk sky, a water tank and the lettered sign in the distance." loading="lazy">
+        <img class="before" src="assets/img/c7-roof-before.webp" width="1280" height="720" alt="The rooftop in Candidate 6 with the sky in visible bands." loading="lazy">
+        <span class="lab l">CANDIDATE 6</span><span class="lab r">CANDIDATE 7 CODE</span><div class="handle"></div>
+      </div>
+      <input type="range" min="0" max="100" value="50" aria-label="Reveal the candidate 6 frame and the candidate 7 code frame">
+      <div class="modes"><button data-m="slide" aria-pressed="true">Slider</button><button data-m="side" aria-pressed="false">Side by side</button></div>
+      <div class="sbs"><figure><span class="lab">CANDIDATE 6</span><img src="assets/img/c7-roof-before.webp" alt="The rooftop in Candidate 6 with the sky in visible bands." loading="lazy"></figure><figure><span class="lab">CANDIDATE 7 CODE</span><img src="assets/img/c7-roof-after.webp" alt="The rooftop after the look pass with a smooth dusk sky, a water tank and the lettered sign in the distance." loading="lazy"></figure></div>
+      <figcaption><span class="tag">Gameplay frame</span>Rooftops, same camera, from the look engineer's proof folder (editor game).</figcaption>
+      <ol class="notes"><li>The sky stripes are gone. The skyline is still flat dark slabs.</li><li>The tar-black roof slab did not visibly change the floor, said the look engineer.</li></ol>
+    </div>
+    <h4 style="margin-top:30px">Finding 4, soft-play hall</h4><div class="cmp" data-cmp>
+      <div class="cmp-stage">
+        <img class="after" src="assets/img/c7-soft-after.webp" width="1280" height="720" alt="The soft-play hall after the lighting pass." loading="lazy">
+        <img class="before" src="assets/img/c7-soft-before.webp" width="1280" height="720" alt="The soft-play hall before the lighting pass." loading="lazy">
+        <span class="lab l">BEFORE</span><span class="lab r">AFTER</span><div class="handle"></div>
+      </div>
+      <input type="range" min="0" max="100" value="50" aria-label="Reveal the before frame and the after frame">
+      <div class="modes"><button data-m="slide" aria-pressed="true">Slider</button><button data-m="side" aria-pressed="false">Side by side</button></div>
+      <div class="sbs"><figure><span class="lab">BEFORE</span><img src="assets/img/c7-soft-before.webp" alt="The soft-play hall before the lighting pass." loading="lazy"></figure><figure><span class="lab">AFTER</span><img src="assets/img/c7-soft-after.webp" alt="The soft-play hall after the lighting pass." loading="lazy"></figure></div>
+      <figcaption><span class="tag">Gameplay frame</span>Soft-play hall, same camera, look engineer's proof folder.</figcaption>
+      <ol class="notes"><li>Slightly deeper shading on the blocks and corners. The independent reviewer could not tell the two apart at a glance, so this is marked marginal.</li><li>Caveat from the look engineer: the two frames are different moments of the scripted run, so a red enemy marker and a hit banner appear in one and not the other.</li></ol>
+    </div>
+    <h4 style="margin-top:30px">Finding 5, a door</h4><figure style="margin-top:12px"><img src="assets/img/c7-door-before.webp" width="1800" height="168" alt="Six frames from Candidate 6 at the arcade shutter: the way into the next room is a plain box-shaped passage." loading="lazy"><figcaption><span class="tag tool">Tool output</span>Before (Candidate 6): the arcade shutter, one frame a second. The frames show the bare box-shaped passage the creative lead called glitchy.</figcaption></figure><figure style="margin-top:14px"><img src="assets/img/c7-door-after.webp" width="1800" height="323" alt="Nineteen frames at 20 a second: a door frame with a dark leaf that opens and drops, then the eyelid closes." loading="lazy"><figcaption><span class="tag tool">Tool output</span>After (Candidate 7 code): a door leaf over a dark curtain that opens and drops, 20 frames a second, from the doors engineer.</figcaption></figure></div>
+  </div>
+</section>
+
+<!-- 15 -->
+<section class="sec violet" id="s15" aria-labelledby="s15h">
+  <div class="wrap">
+    <div class="sh"><span class="num">15</span><h2 id="s15h">The trailer and the marketing: what we got wrong</h2><span class="evi">Evidence: strong. Measured after the creative lead said it looked wrong.</span></div>
+    <div class="cols prose">
+      <div>
+        <p class="lede">The trailer was called final by the lead agent at 09:26 on Sunday. At 10:52 the creative lead wrote that it was choppy and looked like a PS1-era game. He was right, and the project had never measured smoothness.</p>
+        <p>Here is what the lead agent had checked before calling the trailer done: format, loudness, and silence. It had not counted repeated frames. Once it did, the measurement was immediate: <strong>484 of the 1,174 frames in the final file repeat the frame before them. That is 41 percent</strong> (about 150 of them are the still title and end cards).</p>
+        <p>This was measured only after the creative lead said the trailer looked wrong. The cause was not the game, which runs at 59.8 to 60 frames a second. It was the recording: frames were captured at about 22.3 a second in real time and laid onto a 30-a-second timeline, so about every third frame was shown twice in an uneven pattern.</p>
+      </div>
+      <div class="card">
+        <h3>The diagnosis, point by point</h3>
+        <p style="margin:0 0 .7em"><span class="chip v">Verified</span> Choppy motion: the capture's own timestamps show 2,011 frames with a median gap of 0.045 s.</p>
+        <p style="margin:0 0 .7em"><span class="chip v">Verified</span> Blocky, smeared picture: video bitrate 3.9 megabits a second for 1080p.</p>
+        <p style="margin:0 0 .7em"><span class="chip v">Verified</span> Soft picture: 1600 by 900 source frames scaled by 1.2.</p>
+        <p style="margin:0 0 .7em"><span class="chip o">Reading</span> Looks dated: the sky's colour steps, flat light, large single-colour faces and the box-built boss were on screen.</p>
+        <p style="margin:0"><span class="chip o">Reading</span> Stiff camera: a scripted player, not a hand.</p>
+      </div>
+    </div>
+    <div class="bars reveal" style="margin:30px 0 8px;max-width:680px;--on:1">
+      <div class="bar-row" style="--w:41%"><span>Repeated frames</span><div class="tr"><i></i></div><span class="v">41%</span></div>
+      <div class="bar-row" style="--w:100%"><span>All 1,174 frames</span><div class="tr"><i style="background:#8f7bd6"></i></div><span class="v">100%</span></div>
+    </div>
+    <p class="muted" style="font-size:14.5px">Repeated frames, 484 of 1,174, in the fourth trailer cut. Chart drawn from that count.</p>
+    <div class="figrow" style="margin-top:28px">
+      <figure><img src="assets/img/trailer-sheet.webp" width="1400" height="919" alt="A grid of one-per-second frames from the fourth trailer cut, from the street through the breaker room to the end card." loading="lazy"><figcaption><span class="tag tool">Tool output</span>The fourth trailer cut, one frame a second. The format checks on this file were all fine; the smoothness problem is in the gaps between these frames, which a sheet cannot show.</figcaption></figure>
+      <figure><img src="assets/img/cover-v1.webp" width="630" height="500" alt="A cover image: a gameplay frame of the back of Noxie's head in a dark blue hall above the NOXIE: PRIME CUT wordmark." loading="lazy"><figcaption><span class="tag tool">Tool output</span>The first cover (frame plus title panel). The marketing review's finding: Noxie is missing from every image, only the back of his head shows, and it reads as a screenshot.</figcaption></figure>
+    </div>
+    <h3 style="margin-top:34px">What happened to the trailer before that</h3>
+    <ol class="prose">
+      <li>First cut, 08:45: found to have a 3.4 second sound gap near the centre.</li>
+      <li>Second cut, 09:07: made the current video. 37.8 seconds, 1920 by 1080, -16.6 LUFS, all ten shots placed by their own clap sound.</li>
+      <li>Third cut, 09:12: near-silent for 5.6 seconds. The cause was the capture starving the game's sound loading. Not the build. Not used.</li>
+      <li>Fourth cut, 09:26: cause fixed; continuous sound. Called final. Its own record says: "Heard and watched in motion by nobody."</li>
+    </ol>
+    <h3 style="margin-top:28px">The diagnosis, measured on the file and on the capture</h3>
+    <div class="prose"><ul>
+      <li><strong>Repeated frames:</strong> 484 of 1,174 (41.2 percent) over the whole file; 334 of 1,008 (33.1 percent) in the gameplay alone. The edit had planned 261 of 1,009 gameplay slots (25.9 percent) to hold a picture.</li>
+      <li><strong>Capture rate:</strong> 22.28 frames a second (median gap 0.0449 s) laid onto a 30-a-second timeline. The capture itself slowed the game to about 22 frames a second, because each frame waited for its screenshot (street 21.3 fps).</li>
+      <li><strong>A second fault, in the assembler:</strong> it fed pictures to ffmpeg at 25 a second and a filter re-timed them to 30, which added one more copy in every sixth frame. On a test clip the same plan went from 23 repeats in 132 frames to 5, exactly the 5 slots the plan holds, after the fix.</li>
+      <li><strong>Encoding:</strong> 3.88 Mbit/s for 1080p. Now constant quality 12, slow preset, and the script refuses any file under 12 Mbit/s.</li></ul>
+    <p>The new method was tested on short clips, and tried in the open. Half-speed capture gave 5 of 132 (3.8 percent) and 10 of 134 (7.5 percent) repeated frames, both over the 2 percent limit, but both while other runs and the stuck helpers loaded the machine. Frame-stepped capture gave 0 of 137 repeats and a perfect picture at any load, but its sound was not continuous. A 0.4 speed clip gave 1 of 138 (0.7 percent) and its sound sync could not be confirmed. A pitch floor in the engine would also have changed some sounds at half speed; it was lowered for capture. The capture must run on a quiet machine, so it waited until the reviewer's runs were done. As the plan says: no agent can watch it at speed, so the creative lead's eye was the last check on the new trailer, and he rejected it (below).</p></div>
+    <div data-slot="trailer-v5" class="status-note" style="max-width:none"><strong>The new trailer, version 5b.</strong> 34.4 seconds, 1920 by 1080, 30 frames a second, about 17.8 Mbit/s, -16.3 LUFS in the file's own measurement, captured at half speed from Candidate 7's code with the sound pitched down while capturing and restored exactly. Measured with the same filter as the old trailer, about 4 percent of its gameplay frames are near-duplicates (34 of 829), and they fall in moments where nothing moves. <strong>No agent can watch a video at speed, so the creative lead's eye was the last check. He watched it and rejected it (below).</strong>
+      <div class="tbl"><table><thead><tr><th>Measure</th><th>Old trailer (fourth cut)</th><th>New trailer (5b)</th></tr></thead><tbody>
+      <tr><td>Near-duplicate frames, gameplay only</td><td>33.1 percent (334 of 1,008); 41.2 percent over the whole file</td><td>4.1 percent (34 of 829)</td></tr>
+      <tr><td>Video bitrate</td><td>3.88 Mbit/s</td><td>about 17.8 Mbit/s</td></tr>
+      <tr><td>Length</td><td>39.1 seconds</td><td>34.4 seconds</td></tr>
+      <tr><td>Capture</td><td>22.28 frames a second onto 30</td><td>half speed, then played at double speed</td></tr></tbody></table></div></div>
+    <figure style="margin-top:18px"><img src="assets/img/trailer-v5b-sheet.webp" width="1400" height="787" alt="A grid of one-a-second frames from the new trailer cut: the street, the rooftops, the breaker room, the hall and the boss, then the end card." loading="lazy"><figcaption><span class="tag tool">Tool output</span>The new trailer, one frame a second. Like the earlier sheet, it cannot show smoothness: that is what the repeated-frame count above measures.</figcaption></figure>
+    <h3 style="margin-top:34px">The fourth time something passed every measurement and a person rejected it</h3>
+    <div class="prose"><p>The creative lead watched trailer 5b at 16:49 and wrote: "I do not approve it. It feels cheap, starts with confusing footage before establishing the game, and lacks professional editorial direction. The problem is not primarily encoding quality. The problem is storytelling, shot selection, character introduction, pacing, and visual hierarchy."</p>
+    <p><strong>What the lead agent got wrong.</strong> It fixed the measured fault, the smoothness, and never questioned the order of the cut. A trailer can be smooth, sharp and clean and still open on confusing footage before the game is established. Nothing the project measured could say that; only a person watching could.</p>
+    <p>He then wrote the new sequence himself, for a 25 to 30 second character-first teaser: Noxie first (0 to 3 seconds), then the world, then one coherent Gulper sequence, then the Cut, then an escalation, then the end card. The v5b numbers above stay as the record of the smoothness fix.</p>
+    <p data-slot="trailer-teaser">A character-first teaser cut to his own sequence (30.7 seconds: a character card, the world, one Gulper sequence, the Cut, an escalation, the end card) is the video he put on the game page.</p></div>
+    <h3 style="margin-top:34px">The marketing: old cover against new</h3>
+    <div class="figrow"><figure><img src="assets/img/cover-old.webp" width="630" height="500" alt="The first cover: a dark blue hall seen from behind Noxie's head, above the NOXIE: PRIME CUT wordmark." loading="lazy"><figcaption><span class="tag tool">Tool output</span>The old cover: a gameplay frame over a title panel, with Noxie missing.</figcaption></figure><figure><img src="assets/img/cover-new.webp" width="630" height="500" alt="The new cover: a large Noxie render with the Gulper in front of a violet game frame, with the title below." loading="lazy"><figcaption><span class="tag render">Key art</span>The new cover: key art, a Blender render of Noxie V2 composed over a game frame. It is not a screenshot.</figcaption></figure></div>
+    <p class="prose" style="max-width:68ch;margin-top:14px">The rule for the screenshots stays the same: they are unaltered game frames. Anything with a render in it is called key art.</p>
+  </div>
+</section>
+
+<!-- 16 -->
+<section class="sec paper" id="s16" aria-labelledby="s16h">
+  <div class="wrap">
+    <div class="sh"><span class="num">16</span><h2 id="s16h">Release candidates and the fallback</h2><span class="evi">Evidence: strong for every candidate, including the final Candidate 7b.</span></div>
+    <div class="cols prose">
+      <div>
+        <p>A playable build was always on disk. Each of the overnight passes ended in a packaged Shipping build. Candidate 4 was frozen with its checksum, made read-only and zipped outside the working folder. Candidate 5 added the look. Candidate 6 added the Prime Cut and Noxie V2 and became the release.</p>
+        <p>On Sunday morning a scripted player ran from a clean extraction of the Candidate 6 zip (the idle test, a player who presses nothing, 20 of 20; the full chapter run 496 of 496). Its binary checksum, the release zip and the frozen copy were each recorded and re-hashed at 10:47 and matched.</p>
+      </div>
+      <div class="card">
+        <h3>The rule for Candidate 7</h3>
+        <p style="margin:0">Candidate 6 is protected. The Sunday quality pass happened in isolated copies started from a tagged baseline. Candidate 7 replaced Candidate 6 only if every gate passes on the packaged build, each change has a before and after frame from the gameplay camera, an independent reviewer who built none of it finds no regression, and the creative lead or the evidence says it is better. His rule: "If the improvement is marginal, unsafe, incomplete, or unverified, retain Candidate 6."</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:34px">Sunday, in order</h3>
+    <div class="prose">
+    <p>The creative lead played Candidate 6 and listed nine findings (<a href="#s14">section 14</a>). A fresh lead agent launched ten bounded lines at 11:16 with a 13:00 stop for game changes. Five were engineering lines, each in its own isolated copy. What each changed, and what each could not prove:</p>
+    <ul>
+      <li><strong>Combat (Opus).</strong> The loaded shot, the swallowed box, hit reactions. Could not prove: the floating Private never reproduced, and the airborne-guard rule never fired in three chapter runs.</li>
+      <li><strong>Boss (Opus).</strong> An entry card, a lit and marked open cell, a highlighted crate, longer warnings, a glowgrub fix, and the dressed crane back on. Needed an independent pass on the package.</li>
+      <li><strong>Doors (Opus).</strong> The cause was the plain passages seen before the eyelid shut, not drawn trigger boxes: a fast lid at the door line, a dark curtain behind each leaf. One dark frame at the arcade remained, and the prize-hall leaf stayed a plain slab.</li>
+      <li><strong>The Cut (Sonnet).</strong> The camera hold, faster panels, a stronger pulse. Hall-sweep flash share over the limit; sound and slump untested.</li>
+      <li><strong>The look (Sonnet).</strong> Rooftop sky stripes gone; soft-play light kept (modest); prize-hall lighting reverted after six tries; the street was not attempted.</li></ul>
+    <p>A machine fault spoiled results at midday, and a fairness question about the Cut's camera hold was asked and answered (<a href="#s13">section 13</a>). At 12:54 all engineers stopped. An integrator merged the five lines: two small conflicts (an include list, and a script dispatch), both kept on both sides, nothing dropped. Every gate then passed in the editor: chapter 509 of 509 three times, boss 123 of 123 three times with the dressed crane on, horror 119 of 119, idle 20 of 20, human, careless and seam players 5 of 5 seeds each. The package was built at 13:26 (788 MB).</p>
+    <p>Frame rate: the integrator's own packaged run read 58.0 to 59.6 fps with 153 slow frames, below the floor, on a busy machine. A Candidate 6 control run straight afterwards, in the same state, read 58.7 to 59.6 with similar counts. The independent run, same conditions for both, read Candidate 7 at 59.5 to 60.0 with 0 slow frames and Candidate 6 at 59.7 to 60.0.</p>
+    <p>The independent review, by a different model from the builders, reached its verdict at 14:30: keep Candidate 7, no blocker, after 17 packaged runs, a Candidate 6 control, 17 of 17 clean exits and the creative lead's settings unchanged in all 18 runs it touched. It found the two defects described in <a href="#s13">section 13</a>. Not done by the reviewer: the breaker-flip attack as a run, guards in the air on the package, and a clean 60 fps strip of a door.</p>
+    <p>The black-screen defect was then fixed in one commit and packaged as Candidate 7b at 15:01. A second, smaller independent check at 15:32 confirmed the diff was exactly that commit and that no doorway went black in 6 more packaged runs. Candidate 7b is the final build.</p></div>
+        <figure style="margin:0 0 28px;max-width:900px"><img src="assets/img/gal-hall-restored.webp" width="1280" height="720" alt="The restored bright soft-play hall with Noxie in view." loading="lazy"><figcaption><span class="tag ">Gameplay frame</span>The protected fallback: a frame from Candidate 6, the hall after the third breaker.</figcaption></figure>
+    <div class="tbl"><table>
+      <thead><tr><th>Planned time (Sunday)</th><th>What was planned</th></tr></thead>
+      <tbody>
+        <tr><td>13:00</td><td>Hard cutoff: workers stop changing anything. Anything not passing is reverted in its own copy and listed.</td></tr>
+        <tr><td>13:30</td><td>Lines merged, scene data regenerated, compiled; gates run in the editor game.</td></tr>
+        <tr><td>14:00</td><td>Candidate 7 packaged.</td></tr>
+        <tr><td>14:30</td><td>Independent regression on the package.</td></tr>
+        <tr><td>15:00</td><td>Keep-or-fall-back decision. If there is no validated Candidate 7, Candidate 6 is uploaded.</td></tr>
+        <tr><td>18:00 / 20:59</td><td>The creative lead's upload target / the jam closes.</td></tr>
+      </tbody></table></div>
+    <p>The order of sacrifice if the work backs up: the third and fourth scenes' lighting, then hit reactions, the crane dressing and the Cut's extras. The loaded shot, the doors and the boss explanation are never the ones cut.</p>
+    <p class="status-note" data-slot="candidate-decision"><strong>The decision.</strong> At 14:31 Candidate 7 replaced Candidate 6 as the upload. At 15:32 an independent delta check kept Candidate 7b, which is Candidate 7 plus exactly one commit: the dark curtain behind each door became a one-sided plane. Evidence for 7b: packaged chapter 509 of 509; from the unpacked zip, idle 20 of 20 and chapter 508 of 508; the reviewer's black-screen case 0 black of 103 views (Candidate 7: 19 of 76); 0 black views at all three doorways. One small cost, noted honestly by the reviewer: from the arcade doorway facing the room, a pale strip of plain wall shows at the frame edge where the screen used to be black. The 7b zip is 467,213,845 bytes (30 files); the app is not notarised, as before. Candidate 7's zip was 467,214,026 bytes (unpacked: a scripted idle run 20 of 20 and a full-chapter run 507 of 508 twice). Candidates 6 and 7 stayed byte-identical all day: their binaries and zips were re-hashed before and after every packaging step.</p>
+  </div>
+</section>
+
+<!-- 17 -->
+<section class="sec night" id="s17" aria-labelledby="s17h">
+  <div class="wrap">
+    <div class="sh"><span class="num">17</span><h2 id="s17h">Where everything came from</h2><span class="evi">Evidence: strong. A longer disclosure is submitted separately.</span></div>
+    <div class="cols prose">
+      <div>
+        <p class="lede">One human, no other human contributor. His statement, 15 November: "No other human made anything. Claude used meshy and coded. ChatGPT helped plan and audit Claude."</p>
+        <p>The Meshy calls, where the records disagreed about who ran them, are resolved by that statement: Claude ran them under his direction.</p>
+        <p>Content the entrant generates with AI tools is not counted as a sourced asset under the jam's rules; sourced assets must be declared. Both are listed here.</p>
+      </div>
+      <div class="card"><h3>AI-generated</h3>
+        <p style="margin:0">All code and tests. All Blender-scripted models, textures and the dressing kit (no outside models, textures, fonts or services). The score (eight musical states) and 28 of the 59 newest sound effects are synthesised by Python code that the agents wrote, with no samples, loops or presets; the other 31 effects layer licensed human-made recordings (listed below). The first character mesh, skeleton and eight animation clips from Meshy, reworked in Blender into Noxie V2 (wings, skin and glow made by script; skeleton and clips unchanged). Concept pictures by Z-Image Turbo and nano-banana-2 (not in the game).</p></div>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>Source</th><th>Used for</th><th>Terms as recorded</th></tr></thead>
+      <tbody>
+        <tr><td>Sonniss GameAudioGDC bundles, 153 recordings from 109 libraries</td><td>Layers inside the sound effects, including 31 of the 59 newest files that reuse slices of sounds already layered from them</td><td>Royalty-free; commercial use in a game allowed; no credit required; not to be redistributed as a sound pack; not for AI training. The raw and processed recordings are not published.</td></tr>
+        <tr><td>Unreal Engine 5.8 and engine content</td><td>Everything</td><td>The engine's licence; terms for a commercial release not read for this page.</td></tr>
+        <tr><td>Meshy</td><td>Character base model, rig and clips; arcade cabinets; other props</td><td>Terms on the creative lead's plan: not confirmed in the records.</td></tr>
+        <tr><td>Z-Image Turbo, nano-banana-2</td><td>Concept pictures only</td><td>Not recorded.</td></tr>
+        <tr><td>Blender, Python with numpy, ffmpeg</td><td>Modelling, baking, synthesis, decoding, video assembly</td><td>Tools run locally; no outside models or textures.</td></tr>
+        <tr><td>Four reference photos of kawaii stickers</td><td>Trait references for the first character</td><td>Not in the game. Who drew the stickers is not recorded.</td></tr>
+      </tbody></table></div>
+    <p class="status-note" data-slot="provenance-open-items">Fab or Marketplace content and non-engine fonts: the project records give no answer either way, and it was not checked for this page. Meshy plan terms: not checked for this page. The Ninja Chicken model is not in the game; whether the Meshy cabinets and claw head are in the submitted build is decided by the build manifest.</p>
+  </div>
+</section>
+
+<!-- 18 -->
+<section class="sec paper" id="s18" aria-labelledby="s18h">
+  <div class="wrap">
+    <div class="sh"><span class="num">18</span><h2 id="s18h">The numbers</h2><span class="evi">Evidence: re-derived from the project's records on 15 Nov, between 11:20 and 15:35, with the method named.</span></div>
+    <div class="kpis">
+      <div class="kpi"><b>205</b><span>commits on the release branch (228 across every branch)</span><small>git log, counted Sunday 15:35</small></div>
+      <div class="kpi"><b>33</b><span>tags marking verified stages and candidates</span><small>git tag</small></div>
+      <div class="kpi"><b>19</b><span>packaged build folders, plus two release-zip folders</span><small>build folder listing</small></div>
+      <div class="kpi"><b>43</b><span>C++ source files, about 17,500 lines</span><small>file count and wc</small></div>
+      <div class="kpi"><b>76</b><span>build, test, package and capture scripts</span><small>tools folder</small></div>
+      <div class="kpi"><b>~2,760</b><span>run folders, nested copies included (about 774 of them packaged-build runs)</span><small>folders named by run time; failing runs kept; a folder count, not a test count</small></div>
+      <div class="kpi"><b>10</b><span>independent review documents</span><small>review folders</small></div>
+      <div class="kpi"><b>104</b><span>Meshy credits (not money) logged: 44 character, 35 cabinets and claw, 25 Ninja Chicken (not shipped)</span><small>credit logs; none recorded after Saturday 16:34</small></div>
+      <div class="kpi"><b>$0</b><span>cash spent, as recorded</span><small>running log</small></div>
+      <div class="kpi"><b>59.8 to 60.0</b><span>frames a second in every scene on Candidate 6 (one frame over 33 ms); Candidate 7 read 59.5 to 60.0 with 0 over 33 ms in the independent run</span><small>independent regressions, 1600 by 900</small></div>
+      <div class="kpi"><b>~467 MB</b><span>the final Candidate 7b release zip, 467,213,845 bytes (under the 1 GB limit)</span><small>zip validation record</small></div>
+    </div>
+    <h3>Commits per day</h3>
+    <div class="bars">
+      <div class="bar-row" style="--w:88%"><span>Fri 13 Nov</span><div class="tr"><i></i></div><span class="v">63</span></div>
+      <div class="bar-row" style="--w:94%"><span>Sat 14 Nov</span><div class="tr"><i></i></div><span class="v">68</span></div>
+      <div class="bar-row" style="--w:100%"><span>Sun 15 Nov*</span><div class="tr"><i></i></div><span class="v">74</span></div>
+    </div>
+    <p class="muted" style="font-size:14.5px">*Counted at 15:35, with the day not over. The lead and the integrator commit in the main copy; engineers commit in separate copies that count here once merged. The repository's first commit is Friday 13 Nov 12:12.</p>
+    <div class="card" style="margin-top:26px"><h4>Tokens: a partial count</h4><p style="margin:0;max-width:80ch">As recorded in the running log on Friday at 18:53, a partial count covering only the first 6.75 hours: the lead session used 54.9 million tokens over 150 replies; 15 worker logs used about 488 million (Opus 483.3 million over 1,469 replies; Sonnet 5.1 million). Almost all of it, 476 million of the Opus figure, was re-reading context already cached, not new writing (1.78 million written). A second, separate point: for the Friday-to-Saturday overnight run the harness reported, per worker, Opus 3.73 million tokens over six workers (1,915 tool calls) and Sonnet 0.31 million over two workers. That is a different basis from the Friday figure, which counted cache re-reads, so the two must not be added. The lead session's total was not measured. No whole-project token figure is claimed. No cost in money is attached to these figures in the records.</p></div>
+    <p class="status-note" data-slot="final-metrics">Counts on this page were taken on Sunday at 14:58 and 15:35 (earlier counts at 11:20: 168 commits on the branch, 177 on all branches). The run-folder and file counts are from 14:58.</p>
+  </div>
+</section>
+
+<!-- 19 -->
+<section class="sec violet" id="s19" aria-labelledby="s19h">
+  <div class="wrap">
+    <div class="sh"><span class="num">19</span><h2 id="s19h">What shipped, the limits, the lessons, and next</h2><span class="evi">Evidence: strong. Limits are quoted from the release facts.</span></div>
+    <figure style="margin:0 0 28px;max-width:900px"><img src="assets/img/gal-rooftops.webp" width="1280" height="720" alt="The rooftops with the lettered Big Gawp sign." loading="lazy"><figcaption><span class="tag ">Gameplay frame</span>From the submitted chapter (Candidate 6): the rooftops, on the way to the fun-hall.</figcaption></figure>
+    <div class="cols prose">
+      <div>
+        <h3>The deliverables</h3>
+        <ul>
+          <li>A Mac Shipping build, one chapter: street, rooftops, arcade, soft-play hall, the breaker room, a prize hall with a crane boss, home. A scripted run takes about five minutes; a person's length is not measured.</li>
+          <li>A 39-second gameplay video (the choppy fourth cut, then a smoother 34-second cut that the creative lead rejected at 16:49; then a 30.7-second character-first teaser cut to his own sequence, which is the video he put on the game page) and marketing images, including a new cover.</li>
+          <li>Page text, a full AI and asset disclosure, credits, and this dev log.</li>
+        </ul>
+        <span data-slot="links"></span>
+        <h3>Known limits, said plainly</h3>
+        <ul>
+          <li>The boss is built from plain boxes; the home porch is plain; the sky shows colour steps; a few effects are flat discs.</li>
+          <li>A careless player can leave the breaker room on a second take without dying, and the careless scripted player is exempt from the new camera hold by name.</li>
+          <li>The third power cell can need several launches from far away; crates reliably hit it from within about 3 m. The prize hall lighting and the street are unchanged, the floating Private was never reproduced, and the doors are still flat slabs.</li>
+          <li>The output is quiet; Dio Prime's lines are text only.</li>
+          <li>Apple silicon Mac only. Intel Macs and a controller are not verified. The app is not notarised: first open needs right-click then Open. No Windows build: the entry is macOS only. The jam page lists macOS, but the Official Rules and an Epic staff reply on the jam forum say to package for Windows. The creative lead knew this risk and decided to submit the macOS build because no Windows machine was available, and he did submit it (about 5:38 PM EST on Sunday, shown on the jam's public entry page as 3 hours, 21 minutes before the deadline).</li>
+          <li>Only the creative lead is recorded as having played Candidate 6. Nobody had played Candidate 7 or 7b by hand when this page was last updated, and there was no wider playtest.</li>
+          <li>Nothing here says the game is fun. That is for a player to say.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Lessons</h3>
+        <ol>
+          <li><strong>Passing tests missed two defects that an independent reviewer on a different model found within an hour.</strong> The third power cell and the black screen behind a door curtain (<a href="#s13">section 13</a>). Tests prove function, not feel: three times green tests and a human playing disagreed, and the human was right.</li>
+          <li><strong>Measure a video's smoothness before calling it done.</strong> The old trailer passed format, loudness and silence checks and was 41 percent repeated frames.</li>
+          <li><strong>A wait with no timer is a stall.</strong> The lead agent lost two and a half hours to one.</li>
+          <li><strong>A check has to fail first.</strong> Control cases before trust.</li>
+          <li><strong>Different model, different blind spots.</strong> Reviewers that did not build the work found what builders had accepted.</li>
+          <li><strong>Log your own mistakes.</strong> The wrong guesses stayed in the record with the correction underneath.</li>
+          <li><strong>A cut can pass every measurement and still be wrong in order.</strong> The lead agent fixed the trailer's smoothness and never questioned its sequence; the creative lead rejected it at 16:49.</li>
+          <li><strong>A fix its own author doubts does not ship.</strong> The aim fix for the third power cell was better but not reliable, so it stayed out of the build and went on the after-jam list.</li>
+          <li><strong>Keep a fallback and protect it.</strong> A playable build existed at every point.</li>
+        </ol>
+        <h3>Roadmap after the jam</h3>
+        <p>Nothing below is scheduled or approved.</p>
+        <ul>
+          <li><strong>Ninja Chicken</strong>, a living weapon that fires an egg that hatches an ally: planned as an optional pass, deferred, never built. A Meshy model exists; there is no code.</li>
+          <li>The aim fix for the third power cell, kept out of Sunday's build; the cause of the dressed-crane walk-home failure in one test; the Gulper's two names for one loaded shot.</li>
+          <li>More chapters and places; each scene already has takes that Dio Prime re-cuts.</li>
+          <li>Real models for the boss, porch, cabinets and sky; Noxie's magenta mouth and wings that deform.</li>
+          <li>Deeper combat, traversal and enemies; a controller pass.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- gallery -->
+<section class="sec night" id="gallery" aria-labelledby="gh">
+  <div class="wrap">
+    <span class="eyebrow">Artifacts</span>
+    <h2 id="gh" style="margin-bottom:12px">A gallery of what was actually made</h2>
+    <p class="lede" style="margin-bottom:30px">Every image on this page, and a few more, with what each one is. Select one to enlarge.</p>
+    <div class="gal">
+      <button type="button"><img src="assets/img/gal-street.webp" width="1280" height="720" alt="Noxie in the street with the objective marker and Dot's subtitle." loading="lazy"><span><b class="tag">Gameplay frame</b><span class="cap" style="padding:0">The street at the start, with the objective marker for the Gulper. Candidate 6.</span></span></button>
+      <button type="button"><img src="assets/img/gal-rooftops.webp" width="1280" height="720" alt="The rooftops with the lettered Big Gawp sign." loading="lazy"><span><b class="tag">Gameplay frame</b><span class="cap" style="padding:0">The rooftops and the lettered sign, the glide toward the fun-hall. Candidate 6.</span></span></button>
+      <button type="button"><img src="assets/img/gal-horror-cut.webp" width="1280" height="720" alt="The dark violet breaker room with performer dolls." loading="lazy"><span><b class="tag">Gameplay frame</b><span class="cap" style="padding:0">The breaker room as the Horror Cut, before any breaker is flipped. Candidate 6.</span></span></button>
+      <button type="button"><img src="assets/img/gal-hall-restored.webp" width="1280" height="720" alt="The restored bright soft-play hall with Noxie in view." loading="lazy"><span><b class="tag">Gameplay frame</b><span class="cap" style="padding:0">The hall after the third breaker: the Prime Cut restored. Candidate 6.</span></span></button>
+      <button type="button"><img src="assets/img/hero-noxie-horror.webp" width="1280" height="720" alt="A close front view of Noxie in the dark Horror Cut, with a tutorial line across the top." loading="lazy"><span><b class="tag">Gameplay frame</b><span class="cap" style="padding:0">Noxie V2 from the front in the Horror Cut, from the character-import test. Magenta veins on the ears are visible.</span></span></button>
+      <button type="button"><img src="assets/img/noxie-views-sheet.webp" width="1310" height="750" alt="A contact sheet pairing old and new character views from seven angles." loading="lazy"><span><b class="tag tool">Tool output</b><span class="cap" style="padding:0">Old beside new, seven camera views in the game: the evidence for the creative lead's six conditions on Noxie V2.</span></span></button>
+      <button type="button"><img src="assets/img/concept-G.webp" width="900" height="900" alt="The approved concept picture of the first character." loading="lazy"><span><b class="tag concept">Concept</b><span class="cap" style="padding:0">Design G: the AI-generated picture the creative lead chose. Not a game asset.</span></span></button>
+      <button type="button"><img src="assets/img/bodge-v0-render.webp" width="1600" height="400" alt="The first Blender-scripted Bodge in four views." loading="lazy"><span><b class="tag render">Render</b><span class="cap" style="padding:0">The first Bodge, a Blender script's output.</span></span></button>
+      <button type="button"><img src="assets/img/boss-crane-boxes.webp" width="1280" height="720" alt="The prize hall with floating labels." loading="lazy"><span><b class="tag">Gameplay frame</b><span class="cap" style="padding:0">The prize hall that the creative lead found hard to understand.</span></span></button>
+    </div>
+    <dialog id="dlg" aria-label="Enlarged image"><form method="dialog"><button>Close</button></form><img alt=""><p></p></dialog>
+  </div>
+</section>
+</main>
+
+<section class="sec night" style="padding:40px 0"><div class="wrap"><p data-slot="public-url"></p></div></section>
+<footer>
+  <div class="wrap">
+    <p class="mono">NOXIE: PRIME CUT dev log</p>
+    <p>Developed by Vyztra for the 2026 Epic AI MegaJam. The game, this page and its pictures were made with AI agents under the direction of one creative lead; see <a href="#s17">section 17</a>. All pictures are from the project's own records and are labelled for what they are. No trackers, no external scripts, no external fonts.</p>
+    <p class="muted">Written Sunday 15 November 2026 from the project's records and updated after the entry was submitted at about 5:38 PM EST on Sunday 15 November.</p>
+  </div>
+</footer>
+<button class="btt" aria-label="Back to top">^</button>
+<script src="assets/site.js"></script>
+</body>
+</html>
